@@ -1,20 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import subprocess
-import time
-import pickle
 import click
 import sys
 import os
-import rich
 import asyncio
-import re
-from rich.progress import Progress
 from rich.theme import Theme
 from rich.console import Console
-
-progress_theme = Theme(
+from worker import Worker
+from job_dispaly import job_display
+from command import Command
+theme = Theme(
     {
         "log": "green",
         "status": "cyan",
@@ -22,82 +18,32 @@ progress_theme = Theme(
         "ev_per_sec": "yellow",
     }
 )
-console = Console(theme=progress_theme)
+console = Console(theme=theme)
 
 
-def gen_cmd(exe_path, env, config_path, config_name, ned_path, opts):
-    exe_path = "./quisp"
-    cmd = [
-        exe_path,
-        "-u",
-        env,
-        config_path,
-        "-c",
-        config_name,
-        "-n",
-        ned_path,
-    ]
-    if opts:
-        cmd += opts
-    return cmd
 
+async def start_simulations(
+    exe_path, ui, config_file, config_name, ned_path, opts, dryrun, quisp_workdir
+):
+    cmd = Command(exe_path, ui, config_file, config_name, ned_path, opts)
+    if dryrun:
+        print(cmd.to_str())
+        exit(0)
+    console.print(f"Working dir: {quisp_workdir}")
+    pool_size = 4
+    task_size = 100
+    tasks = asyncio.Queue(task_size + pool_size)
+    for i in range(task_size):
+        tasks.put_nowait(cmd)
+    for _ in range(pool_size):
+        tasks.put_nowait(None)
 
-async def run_quisp(cmd, workdir="./"):
-    console.print(f"Working dir: {workdir}")
-    console.print(f"Run: {' '.join(cmd)}")
-    proc = await asyncio.create_subprocess_exec(
-        *cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-        cwd=workdir,
-    )
-    with Progress(
-        rich.progress.SpinnerColumn(),
-        "[status]{task.description}",
-        "[num_events]{task.fields[num_events]} events",
-        "[ev_per_sec]{task.fields[ev_per_sec]} ev/sec",
-        rich.progress.TimeElapsedColumn(),
-        console=console,
-    ) as progress:
-        task = progress.add_task(
-            "Starting Simulation", start_time=0, num_events=0, ev_per_sec=0
-        )
-        while True:
-            if proc.stdout.at_eof() and proc.stderr.at_eof():
-                break
-            lines = []
-            ev_per_sec = 0
-            num_events = 0
-            # stdout example:
-            # ** Event #1225984   t=10.000104015903   Elapsed: 96.8616s (1m 36s)  76% completed  (76% total)
-            #     Speed:     ev/sec=9170.57   simsec/sec=9.70194e-08   ev/simsec=9.45231e+10
-            #     Messages:  created: 3759524   present: 15381   in FES: 9122
+    results = asyncio.Queue(task_size)
+    workers = [Worker(i) for i in range(pool_size)]
+    worker_tasks = [asyncio.create_task(worker.run(tasks, results, quisp_workdir)) for worker in workers]
 
-            while len(proc.stdout._buffer) > 0:
-                buf = (await proc.stdout.readline()).decode().strip()
-                if not buf:
-                    break
-                if buf.startswith("** Event"):
-                    match = re.search("Event #(\d+)", buf)
-                    if match:
-                        num_events = int(match.group(1))
-                if buf.startswith("Speed:"):
-                    match = re.search(
-                        "ev/sec=([0-9.]+)\s+simsec/sec=([0-9.\-\+e]+)\s+ev/simsec=([0-9.\-\+e]+)",
-                        buf,
-                    )
-                    if match:
-                        ev_per_sec = int(match.group(1))
-                    lines.append(re.sub("\s+", ",", buf))
-            if lines:
-                progress.update(
-                    task,
-                    description=f"Running quisp",
-                    ev_per_sec=ev_per_sec,
-                    num_events=num_events,
-                )
-            await asyncio.sleep(1)
-    await proc.communicate()
+    display = asyncio.create_task(job_display(workers, console))
+    await asyncio.gather(display, *worker_tasks)
 
 
 @click.command()
@@ -130,7 +76,7 @@ async def run_quisp(cmd, workdir="./"):
     default=False,
     help="dry run, show the command without running QuISP",
 )
-def run(ui, ned_path, config_file, config_name, quisp_root, dryrun):
+def run_cmd(ui, ned_path, config_file, config_name, quisp_root, dryrun):
     if not os.path.exists(quisp_root):
         print(f"quisp_root: {quisp_root} not found", file=sys.stderr)
         exit(1)
@@ -147,13 +93,12 @@ def run(ui, ned_path, config_file, config_name, quisp_root, dryrun):
     # add benchmark dir to ned path
     ned_path += ":" + os.path.abspath(os.path.join(os.getcwd(), "benchmarks"))
 
-    cmd = gen_cmd(exe_path, ui, config_file, config_name, ned_path, opts="")
-    if dryrun:
-        print(" ".join(cmd))
-        exit(0)
 
-    asyncio.run(run_quisp(cmd, quisp_workdir))
-
+    asyncio.run(
+        start_simulations(
+            exe_path, ui, config_file, config_name, ned_path, [], dryrun, quisp_workdir
+        )
+    )
 
 if __name__ == "__main__":
-    run()
+    run_cmd()
