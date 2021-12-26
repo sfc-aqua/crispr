@@ -11,6 +11,8 @@ class Worker:
     lock: asyncio.Lock
     num_events: int
     ev_per_sec: int
+    sim_name: str
+    sim_changed: bool
 
     def __init__(self, id: int):
         self.id = id
@@ -18,6 +20,8 @@ class Worker:
         self.lock = asyncio.Lock()
         self.num_events = 0
         self.ev_per_sec = 0
+        self.sim_name = ""
+        self.sim_changed = True
 
     async def run(
         self,
@@ -29,6 +33,12 @@ class Worker:
             cmd: Optional[Command] = await tasks.get()
             if cmd is None:
                 break
+            async with self.lock:
+                self.sim_name = cmd.config_name + str(cmd.opts)
+                self.num_events = 0
+                self.ev_per_sec = 0
+                self.sim_changed = True
+
             await self.run_quisp(cmd.to_list(), workdir=workdir)
             await results.put(cmd)
 
@@ -58,6 +68,8 @@ class Worker:
                 buf = (await proc.stdout.readline()).decode().strip()
                 if not buf:
                     break
+                if buf.startswith("<!> Error"):
+                    print((await proc.stderr.readline()).decode())
                 if buf.startswith("** Event"):
                     match = re.search("Event #(\d+)", buf)
                     if match:
@@ -72,6 +84,6 @@ class Worker:
                         async with self.lock:
                             self.ev_per_sec = int(match.group(1))
                     lines.append(re.sub("\s+", ",", buf))
-
+                print(buf)
             await asyncio.sleep(1)
         await proc.communicate()

@@ -9,6 +9,7 @@ import asyncio
 def SimulationProgress(console):
     return Progress(
         progress.SpinnerColumn(),
+        "[red]{task.fields[sim_name]}",
         "[status]{task.description}",
         "[num_events]{task.fields[num_events]} events",
         "[ev_per_sec]{task.fields[ev_per_sec]} ev/sec",
@@ -22,16 +23,34 @@ async def job_display(workers: List[Worker], console: Console):
     with SimulationProgress(console) as progress:
         for worker in workers:
             worker.task_id = progress.add_task(
-                "Starting Simulation", start_time=0, num_events=0, ev_per_sec=0
+                "Starting",
+                start_time=0,
+                num_events=0,
+                ev_per_sec=0,
+                sim_name=worker.sim_name,
             )
         while True:
             for worker in workers:
                 async with worker.lock:
                     if worker.task_id is not None:
-                        progress.update(
-                            worker.task_id,
-                            description=f"Running quisp",
-                            ev_per_sec=worker.ev_per_sec,
-                            num_events=worker.num_events,
-                        )
-            await asyncio.sleep(0.5)
+                        if worker.sim_changed:
+                            progress.reset(worker.task_id)
+                            progress.update(
+                                worker.task_id,
+                                description=f"Starting",
+                                ev_per_sec=worker.ev_per_sec,
+                                num_events=worker.num_events,
+                                sim_name=worker.sim_name,
+                                start_time=0,
+                            )
+                            worker.sim_changed = False
+                        else:
+                            progress.update(
+                                worker.task_id,
+                                description=f"Running",
+                                ev_per_sec=worker.ev_per_sec,
+                                num_events=worker.num_events,
+                                sim_name=worker.sim_name,
+                            )
+
+            await asyncio.sleep(0.25)

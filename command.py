@@ -15,7 +15,7 @@ class Command:
     config_ini_file: str
     config_name: str
     ned_path: str
-    opts: list
+    opts: dict
 
     def to_str(self) -> str:
         return " ".join(self.to_list())
@@ -32,6 +32,9 @@ class Command:
             "-n",
             self.ned_path,
         ]
-        if self.opts:
-            cmd += self.opts
+        opt_str = ""
+        for key in self.opts:
+            opt_str += "--" + key + "=" + str(self.opts[key])
+        if opt_str:
+            cmd += [opt_str]
         return cmd
