@@ -95,10 +95,10 @@ async def start_simulations(
     #     exit(0)
 
     console.print(f"Working dir: {quisp_workdir}")
-    pool_size = 2
+    pool_size = 8
     sim_setings = []
-    num_bufs = range(9, 10)
-    num_nodes = [40, 50]
+    num_bufs = range(5, 10)
+    num_nodes = [10, 20, 30, 40, 50]
     network_types = ["linear"]
     for network_type in network_types:
         for num_buf in num_bufs:
@@ -121,7 +121,9 @@ async def start_simulations(
         for worker in workers
     ]
 
-    display = asyncio.create_task(job_display(workers, tasks, console))
+    display = asyncio.create_task(
+        job_display(workers, tasks, results, pool_size, console)
+    )
     await asyncio.gather(display, *worker_tasks)
 
 
