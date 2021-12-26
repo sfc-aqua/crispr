@@ -1,7 +1,7 @@
 from rich import progress
 from rich.console import Console
-from rich.progress import Progress
-from worker import Worker
+from rich.progress import Progres
+from worker import Worker, WorkerStatus
 from typing import List
 import asyncio
 
@@ -18,7 +18,7 @@ def SimulationProgress(console):
     )
 
 
-async def job_display(workers: List[Worker], console: Console):
+async def job_display(workers: List[Worker], tasks, console: Console):
     console.print("[status]Starting Simulation")
     with SimulationProgress(console) as progress:
         for worker in workers:
@@ -47,10 +47,15 @@ async def job_display(workers: List[Worker], console: Console):
                         else:
                             progress.update(
                                 worker.task_id,
-                                description=f"Running",
+                                description=worker.status.value,
                                 ev_per_sec=worker.ev_per_sec,
                                 num_events=worker.num_events,
                                 sim_name=worker.sim_name,
                             )
+                            if worker.status == WorkerStatus.STOPPED:
+                                progress.update(worker.task_id, visible=False)
+                                progress.stop_task(worker.task_id)
 
+            if tasks.empty():
+                break
             await asyncio.sleep(0.25)
