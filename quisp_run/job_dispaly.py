@@ -2,10 +2,11 @@ from rich import progress
 from rich.console import Console, Group
 from rich.progress import Progress
 from rich.live import Live
-from sim_context import SimContext
-from worker import Worker, WorkerStatus
 from typing import List
 import asyncio
+
+from .sim_context import SimContext
+from .worker import Worker, WorkerStatus
 
 
 def simulation_progress(console: Console) -> Progress:

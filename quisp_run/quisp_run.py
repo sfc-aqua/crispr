@@ -8,11 +8,10 @@ import os
 import asyncio
 from rich.theme import Theme
 from rich.console import Console
-from worker import Worker
-from job_dispaly import job_display
-from copy import copy
-from sim_setting import SimSetting
-from sim_context import SimContext
+from .worker import Worker
+from .job_dispaly import job_display
+from .sim_setting import SimSetting
+from .sim_context import SimContext
 
 theme = Theme(
     {

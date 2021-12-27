@@ -3,9 +3,9 @@ import re
 from rich.progress import TaskID
 from typing import List, Optional
 from enum import Enum
-from result import Result
-from sim_context import SimContext
-from sim_setting import SimSetting
+from .result import Result
+from .sim_context import SimContext
+from .sim_setting import SimSetting
 
 
 class WorkerStatus(Enum):

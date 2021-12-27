@@ -1,10 +1,10 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Optional, List
-from sim_setting import SimSetting
-from result import Result
 from enum import Enum
-import asyncio
+from typing import Optional, List
+from .sim_setting import SimSetting
+from .result import Result
+
 
 
 class OmnetppEnv(Enum):
