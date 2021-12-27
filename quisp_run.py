@@ -10,8 +10,9 @@ from rich.theme import Theme
 from rich.console import Console
 from worker import Worker
 from job_dispaly import job_display
-from command import Command
 from copy import copy
+from sim_setting import SimSetting
+from sim_context import SimContext
 
 theme = Theme(
     {
@@ -61,7 +62,7 @@ def run_cmd(ui, ned_path, config_file, sim_name, quisp_root, dryrun):
         exit(1)
 
     quisp_workdir = os.path.join(quisp_root, "quisp")
-    exe_path = "./quisp/quisp"
+    exe_path = "./quisp"
 
     if not os.path.exists(os.path.join(quisp_root, exe_path)):
         print(f"quisp executable not found", file=sys.stderr)
@@ -79,17 +80,9 @@ def run_cmd(ui, ned_path, config_file, sim_name, quisp_root, dryrun):
     )
 
 
-@dataclass
-class SimSetting:
-    num_buf: int
-    num_node: int
-    network_type: str
-
-
 async def start_simulations(
     exe_path, ui, config_file, sim_name, ned_path, opts, dryrun, quisp_workdir
 ):
-    command = Command(exe_path, ui, config_file, sim_name, ned_path, opts)
     # if dryrun:
     #     print(cmd.to_str())
     #     exit(0)
@@ -103,27 +96,18 @@ async def start_simulations(
     for network_type in network_types:
         for num_buf in num_bufs:
             for num_node in num_nodes:
-                sim_setings.append(SimSetting(num_buf, num_node, network_type))
-    task_size = len(sim_setings)
-    tasks = asyncio.Queue(task_size + pool_size)
-    for setting in sim_setings:
-        cmd = copy(command)
-        cmd.config_name = f"{setting.network_type}{setting.num_node}_mm_pur_es"
-        cmd.opts = {"**.buffers": str(setting.num_buf)}
-        tasks.put_nowait(cmd)
-    for _ in range(pool_size):
-        tasks.put_nowait(None)
+                sim_setings.append(
+                    SimSetting(num_buf, num_node, network_type, config_file)
+                )
 
-    results = asyncio.Queue(task_size)
-    workers = [Worker(i) for i in range(pool_size)]
-    worker_tasks = [
-        asyncio.create_task(worker.run(tasks, results, quisp_workdir))
-        for worker in workers
-    ]
-
-    display = asyncio.create_task(
-        job_display(workers, tasks, results, pool_size, console)
+    sim_context = SimContext(
+        exe_path, ui, ned_path, quisp_workdir, pool_size, sim_setings
     )
+
+    workers = [Worker(i, sim_context) for i in range(pool_size)]
+    worker_tasks = [asyncio.create_task(worker.run()) for worker in workers]
+
+    display = asyncio.create_task(job_display(workers, sim_context, console))
     await asyncio.gather(display, *worker_tasks)
 
 

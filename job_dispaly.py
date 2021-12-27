@@ -1,11 +1,10 @@
 from rich import progress
 from rich.console import Console, Group
-from rich.panel import Panel
 from rich.progress import Progress
 from rich.live import Live
+from sim_context import SimContext
 from worker import Worker, WorkerStatus
-from typing import List, Optional, Any
-from command import Command
+from typing import List
 import asyncio
 
 
@@ -23,9 +22,7 @@ def simulation_progress(console: Console) -> Progress:
 
 async def job_display(
     workers: List[Worker],
-    tasks: asyncio.Queue[Optional[Command]],
-    results: asyncio.Queue[Optional[Any]],
-    pool_size: int,
+    context: SimContext,
     console: Console,
 ):
     console.print("[status]Starting Simulation")
@@ -37,7 +34,7 @@ async def job_display(
         progress.TimeElapsedColumn(),
     )
     sim_progress = simulation_progress(console)
-    progress_group = Group(Group(sim_progress), total_progress)
+    progress_group = Group(Group(sim_progress), total_progress)  # type: ignore
     with Live(progress_group):
         for worker in workers:
             worker.task_id = sim_progress.add_task(
@@ -47,8 +44,9 @@ async def job_display(
                 ev_per_sec=0,
                 sim_name=worker.sim_name,
             )
-        total_progress_task = total_progress.add_task("total", total=tasks.qsize())
-        prev_num_finished_tasks = 0
+        total_progress_task = total_progress.add_task(
+            "total", total=context.simulations.qsize()
+        )
         while True:
             for worker in workers:
                 async with worker.lock:
@@ -57,7 +55,7 @@ async def job_display(
                             sim_progress.reset(worker.task_id)
                             sim_progress.update(
                                 worker.task_id,
-                                description=f"Starting",
+                                description="Starting",
                                 ev_per_sec=worker.ev_per_sec,
                                 num_events=worker.num_events,
                                 sim_name=worker.sim_name,
@@ -76,8 +74,10 @@ async def job_display(
                                 sim_progress.update(worker.task_id, visible=False)
                                 sim_progress.stop_task(worker.task_id)
 
-            if tasks.empty():
+            if context.simulations.empty():
                 break
-            total_progress.update(total_progress_task, completed=results.qsize())
+            total_progress.update(
+                total_progress_task, completed=context.results.qsize()
+            )
             await asyncio.sleep(0.25)
         total_progress.update(total_progress_task, advance=1)

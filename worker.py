@@ -1,9 +1,11 @@
 import asyncio
 import re
 from rich.progress import TaskID
-from command import Command
 from typing import List, Optional
 from enum import Enum
+from result import Result
+from sim_context import SimContext
+from sim_setting import SimSetting
 
 
 class WorkerStatus(Enum):
@@ -17,8 +19,13 @@ class WorkerStatus(Enum):
 
 
 class Worker:
+    """Simulation Worker. it takes a simulation setting from the context and runs it."""
+
     id: int
     task_id: Optional[TaskID]
+    context: SimContext
+
+    # these fields are refered by job_diplay, so you need to aquire lock before writing to it.
     lock: asyncio.Lock
     num_events: int
     ev_per_sec: int
@@ -26,7 +33,7 @@ class Worker:
     sim_changed: bool
     status: WorkerStatus
 
-    def __init__(self, id: int):
+    def __init__(self, id: int, context: SimContext):
         self.id = id
         self.task_id = None
         self.lock = asyncio.Lock()
@@ -35,42 +42,48 @@ class Worker:
         self.sim_name = ""
         self.sim_changed = False
         self.status = WorkerStatus.WAINTING_FOR_TASK
+        self.context = context
 
-    async def run(
-        self,
-        tasks: asyncio.Queue[Optional[Command]],
-        results: asyncio.Queue,
-        workdir: str,
-    ):
+    async def run(self):
+        """main coroutine of the worker. fetch a sim setting and run it."""
         await self.set_status(WorkerStatus.WAINTING_FOR_TASK)
+        tasks = self.context.simulations
         while True:
-            cmd: Optional[Command] = await tasks.get()
-            if cmd is None:
+            setting: Optional[SimSetting] = await tasks.get()
+            if setting is None:
                 await self.set_status(WorkerStatus.STOPPED)
                 break
 
-            await self.init_with_new_task(cmd)
-            await self.run_quisp(cmd.to_list(), workdir=workdir)
-            await results.put(cmd)
+            await self.switch_simulation(setting)
+            cmd_list = setting.to_command_list()
+            await self.run_quisp(cmd_list)
+            sim_result = Result(
+                setting=setting,
+                num_buf=setting.num_buf,
+                duration=0,
+                num_total_events=self.num_events,
+                final_events_per_sec=self.ev_per_sec,
+            )
+            await self.context.results.put(sim_result)
 
     async def set_status(self, status: WorkerStatus):
         async with self.lock:
             self.status = status
 
-    async def init_with_new_task(self, cmd: Command):
+    async def switch_simulation(self, setting: SimSetting):
         async with self.lock:
-            self.sim_name = cmd.config_name + str(cmd.opts)
+            self.sim_name = setting.sim_name
             self.num_events = 0
             self.ev_per_sec = 0
             self.sim_changed = True
             self.status = WorkerStatus.STARTING
 
-    async def run_quisp(self, cmd: List[str], workdir: str = "./"):
+    async def run_quisp(self, cmd: List[str]):
         proc = await asyncio.create_subprocess_exec(
             *cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            cwd=workdir,
+            cwd=self.context.working_dir,
         )
         if proc.stdout is None or proc.stderr is None:
             return
