@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
 import click
 import sys
 import os
@@ -13,7 +12,8 @@ from quisp_run.job_dispaly import job_display
 from quisp_run.sim_setting import SimSetting
 from quisp_run.sim_context import SimContext
 from quisp_run.writer import Writer
-
+from typing import List, Mapping, Optional, TypedDict
+from quisp_run.config_parser import parse_config
 theme = Theme(
     {
         "sim_name": "blue",
@@ -25,8 +25,11 @@ theme = Theme(
 )
 console = Console(theme=theme)
 
+@click.group()
+def cli():
+    click.echo("hello")
 
-@click.command()
+@cli.command()
 @click.option(
     "--ui",
     "-u",
@@ -56,7 +59,7 @@ console = Console(theme=theme)
     default=False,
     help="dry run, show the command without running QuISP",
 )
-def run_cmd(ui, ned_path, config_file, sim_name, quisp_root, dryrun):
+def run(ui, ned_path, config_file, sim_name, quisp_root, dryrun):
     if not os.path.exists(quisp_root):
         print(f"quisp_root: {quisp_root} not found", file=sys.stderr)
         exit(1)
@@ -111,8 +114,15 @@ async def start_simulations(
     writer_task = asyncio.create_task(writer.run())
     await asyncio.gather(display_task,writer_task, *worker_tasks)
 
+@cli.command()
+def parse():
+    with open("simulation.plan","r") as f:
+        source = f.read()
+        sim_plan = parse_config(source)
+        console.print(sim_plan)
+
 def main():
-    print("cmd:main()")
-    run_cmd()
+    cli()
+
 if __name__ == "__main__":
     main()

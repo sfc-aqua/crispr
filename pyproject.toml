@@ -13,6 +13,7 @@ rich = "^10.16.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
+pytest = "^6.2.5"
 
 [build-system]
 # https://github.com/python-poetry/poetry/issues/34#issuecomment-997519115
