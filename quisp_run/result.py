@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from typing import Dict
 
-from .sim_setting import SimSetting
+from quisp_run.sim_setting import SimSetting
 
 
 @dataclass

@@ -2,8 +2,8 @@ import asyncio
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, List
-from .sim_setting import SimSetting
-from .result import Result
+from quisp_run.sim_setting import SimSetting
+from quisp_run.result import Result
 
 
 

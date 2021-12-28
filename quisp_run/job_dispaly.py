@@ -5,8 +5,8 @@ from rich.live import Live
 from typing import List
 import asyncio
 
-from .sim_context import SimContext
-from .worker import Worker, WorkerStatus
+from quisp_run.sim_context import SimContext
+from quisp_run.worker import Worker, WorkerStatus
 
 
 def simulation_progress(console: Console) -> Progress:

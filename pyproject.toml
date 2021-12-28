@@ -3,7 +3,8 @@ name = "quisp_run"
 version = "0.1.0"
 description = ""
 authors = ["zigen <hrlclb@gmail.com>"]
-include = ["quisp_run", "benchmarks"]
+include = ["benchmarks"]
+packages = [ {include = "quisp_run"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -14,9 +15,13 @@ rich = "^10.16.1"
 black = "^21.12b0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+# https://github.com/python-poetry/poetry/issues/34#issuecomment-997519115
+requires = ["poetry-core @ git+https://github.com/python-poetry/poetry-core.git@master"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.scripts]
-quisp_run = "quisp_run.quisp_run:run_cmd"
 
+[tool.poetry.scripts]
+quisp_run = "quisp_run.cmd:main"
+
+[tool.poetry.build]
+generate-setup-file = false

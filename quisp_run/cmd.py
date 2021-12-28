@@ -8,10 +8,10 @@ import os
 import asyncio
 from rich.theme import Theme
 from rich.console import Console
-from .worker import Worker
-from .job_dispaly import job_display
-from .sim_setting import SimSetting
-from .sim_context import SimContext
+from quisp_run.worker import Worker
+from quisp_run.job_dispaly import job_display
+from quisp_run.sim_setting import SimSetting
+from quisp_run.sim_context import SimContext
 
 theme = Theme(
     {
@@ -109,6 +109,8 @@ async def start_simulations(
     display = asyncio.create_task(job_display(workers, sim_context, console))
     await asyncio.gather(display, *worker_tasks)
 
-
-if __name__ == "__main__":
+def main():
+    print("cmd:main()")
     run_cmd()
+if __name__ == "__main__":
+    main()
