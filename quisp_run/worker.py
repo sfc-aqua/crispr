@@ -76,6 +76,7 @@ class Worker:
             real_time_str=self.real_time_str,
             user_time_str=self.user_time_str,
             sys_time_str=self.sys_time_str,
+            error_message=self.error_messages,
         )
 
     async def set_status(self, status: WorkerStatus):

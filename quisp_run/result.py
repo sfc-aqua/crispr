@@ -14,6 +14,7 @@ class Result:
     user_time_str: str = ""
     sys_time_str: str = ""
     real_time_str: str = ""
+    error_message: str = ""
 
     def to_dict(self) -> Dict:
         return {
@@ -23,4 +24,5 @@ class Result:
             "sys": self.sys_time_str,
             "user": self.user_time_str,
             "real": self.real_time_str,
+            "error": self.error_message,
         }

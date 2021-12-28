@@ -81,5 +81,5 @@ async def job_display(
             total_progress.update(
                 total_progress_task, completed=context.done.qsize()
             )
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.02)
         total_progress.update(total_progress_task, advance=1)
