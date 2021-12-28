@@ -22,6 +22,7 @@ class SimContext:
     pool_size: int
     simulations: asyncio.Queue[Optional[SimSetting]]
     results: asyncio.Queue[Optional[Result]]
+    done: asyncio.Queue[None]
 
     def __init__(
         self,
@@ -45,3 +46,4 @@ class SimContext:
         for _ in range(pool_size):
             self.simulations.put_nowait(None)
         self.results = asyncio.Queue(num_simulations)
+        self.done = asyncio.Queue(num_simulations)

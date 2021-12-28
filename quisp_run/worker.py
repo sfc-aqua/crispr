@@ -24,11 +24,16 @@ class Worker:
     id: int
     task_id: Optional[TaskID]
     context: SimContext
+    setting: Optional[SimSetting] = None
+    user_time_str: str = ""
+    real_time_str: str = ""
+    sys_time_str: str = ""
+    error_messages: str = ""
 
     # these fields are refered by job_diplay, so you need to aquire lock before writing to it.
     lock: asyncio.Lock
     num_events: int
-    ev_per_sec: int
+    ev_per_sec: float
     sim_name: str
     sim_changed: bool
     status: WorkerStatus
@@ -47,9 +52,9 @@ class Worker:
     async def run(self):
         """main coroutine of the worker. fetch a sim setting and run it."""
         await self.set_status(WorkerStatus.WAINTING_FOR_TASK)
-        tasks = self.context.simulations
+        ctx = self.context
         while True:
-            setting: Optional[SimSetting] = await tasks.get()
+            setting: Optional[SimSetting] = await ctx.simulations.get()
             if setting is None:
                 await self.set_status(WorkerStatus.STOPPED)
                 break
@@ -57,30 +62,42 @@ class Worker:
             await self.switch_simulation(setting)
             cmd_list = setting.to_command_list()
             await self.run_quisp(cmd_list)
-            sim_result = Result(
-                setting=setting,
-                num_buf=setting.num_buf,
-                duration=0,
-                num_total_events=self.num_events,
-                final_events_per_sec=self.ev_per_sec,
-            )
-            await self.context.results.put(sim_result)
+            result = self.get_result()
+            await ctx.results.put(result)
+            await ctx.done.put(None)
+
+    def get_result(self) -> Result:
+        assert self.setting is not None
+        return Result(
+            setting=self.setting,
+            num_buf=self.setting.num_buf,
+            num_total_events=self.num_events,
+            final_events_per_sec=self.ev_per_sec,
+            real_time_str=self.real_time_str,
+            user_time_str=self.user_time_str,
+            sys_time_str=self.sys_time_str,
+        )
 
     async def set_status(self, status: WorkerStatus):
         async with self.lock:
             self.status = status
 
     async def switch_simulation(self, setting: SimSetting):
+        self.setting = setting
         async with self.lock:
             self.sim_name = setting.sim_name
             self.num_events = 0
             self.ev_per_sec = 0
             self.sim_changed = True
+            self.sys_time_str = ""
+            self.user_time_str = ""
+            self.real_time_str = ""
+            self.error_messages = ""
             self.status = WorkerStatus.STARTING
 
     async def run_quisp(self, cmd: List[str]):
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
+        proc = await asyncio.create_subprocess_shell(
+            "time " + " ".join(cmd),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=self.context.working_dir,
@@ -125,11 +142,21 @@ class Worker:
                     )
                     if match:
                         async with self.lock:
-                            self.ev_per_sec = int(match.group(1))
+                            self.ev_per_sec = float(match.group(1))
                     lines.append(re.sub("\s+", ",", buf))
             while len(stderr._buffer) > 0:  # type: ignore
                 buf = (await proc.stderr.readline()).decode().strip()
-                print("Err: ", buf)
+                # parse time command output
+                if buf.startswith("real"):
+                    self.real_time_str = buf.split("\t")[1]
+                elif buf.startswith("sys"):
+                    self.sys_time_str = buf.split("\t")[1]
+                elif buf.startswith("user"):
+                    self.user_time_str = buf.split("\t")[1]
+                elif buf:
+                    print("Err: ", buf)
+                    self.error_messages += buf + "\n"
+                    await self.set_status(WorkerStatus.ERROR)
             await asyncio.sleep(1)
         await proc.communicate()
         await self.set_status(WorkerStatus.FINISHED)

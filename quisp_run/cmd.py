@@ -12,6 +12,7 @@ from quisp_run.worker import Worker
 from quisp_run.job_dispaly import job_display
 from quisp_run.sim_setting import SimSetting
 from quisp_run.sim_context import SimContext
+from quisp_run.writer import Writer
 
 theme = Theme(
     {
@@ -89,7 +90,7 @@ async def start_simulations(
     console.print(f"Working dir: {quisp_workdir}")
     pool_size = 8
     sim_setings = []
-    num_bufs = range(5, 10)
+    num_bufs = range(5, 100)
     num_nodes = [10, 20, 30, 40, 50]
     network_types = ["linear"]
     for network_type in network_types:
@@ -105,9 +106,10 @@ async def start_simulations(
 
     workers = [Worker(i, sim_context) for i in range(pool_size)]
     worker_tasks = [asyncio.create_task(worker.run()) for worker in workers]
-
-    display = asyncio.create_task(job_display(workers, sim_context, console))
-    await asyncio.gather(display, *worker_tasks)
+    display_task = asyncio.create_task(job_display(workers, sim_context, console))
+    writer = Writer(sim_context)
+    writer_task = asyncio.create_task(writer.run())
+    await asyncio.gather(display_task,writer_task, *worker_tasks)
 
 def main():
     print("cmd:main()")

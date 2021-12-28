@@ -76,9 +76,10 @@ async def job_display(
                                 sim_progress.stop_task(worker.task_id)
 
             if context.simulations.empty():
+                await context.results.put(None)
                 break
             total_progress.update(
-                total_progress_task, completed=context.results.qsize()
+                total_progress_task, completed=context.done.qsize()
             )
             await asyncio.sleep(0.25)
         total_progress.update(total_progress_task, advance=1)
