@@ -1,6 +1,7 @@
 import os
 from quisp_run.constants import QUISP_RUN_ROOT_DIR
 
+
 def replace_path_placeholder(path_str: str) -> str:
     """convert placeholder string to a valid path string
 

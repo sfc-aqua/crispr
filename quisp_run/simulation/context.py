@@ -1,10 +1,8 @@
 import asyncio
-from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, List
-from quisp_run.sim_setting import SimSetting
-from quisp_run.result import Result
-
+from .setting import SimSetting
+from .result import Result
 
 
 class OmnetppEnv(Enum):

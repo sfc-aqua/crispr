@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-
 from typing import Dict
-
-from quisp_run.sim_setting import SimSetting
+from .setting import SimSetting
 
 
 @dataclass

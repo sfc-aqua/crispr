@@ -1,13 +1,11 @@
-import asyncio
-import re
-from rich.progress import TaskID
-
+import asyncio, re
 from typing import List, Optional
 from enum import Enum
-from quisp_run.result import Result
-from quisp_run.sim_context import SimContext
-from quisp_run.sim_setting import SimSetting
+from rich.progress import TaskID
 from rich.console import Console
+from quisp_run.simulation import Result, SimContext, SimSetting
+
+
 class WorkerStatus(Enum):
     WAINTING_FOR_TASK = "Waiting for task"
     STARTING = "Starting"
@@ -18,8 +16,8 @@ class WorkerStatus(Enum):
     ERROR = "Error"
 
 
-class Worker:
-    """Simulation Worker. it takes a simulation setting from the context and runs it."""
+class Executor:
+    """Simulation executor. it takes a simulation setting from the context and runs it."""
 
     id: int
     task_id: Optional[TaskID]

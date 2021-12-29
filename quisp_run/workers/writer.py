@@ -1,6 +1,7 @@
-from quisp_run.sim_context import SimContext
-from typing import Dict
 import pickle
+from typing import Dict
+from quisp_run.simulation import SimContext
+
 
 class Writer:
     """Simulation log writer"""
@@ -9,7 +10,7 @@ class Writer:
     results: Dict = dict()
 
     def __init__(self, ctx: SimContext):
-        self.context =ctx
+        self.context = ctx
 
     async def run(self):
         while True:
@@ -20,5 +21,3 @@ class Writer:
             with open("tmp_results.pickle", "wb") as f:
                 pickle.dump(self.results, f)
             print(result.to_dict())
-
-

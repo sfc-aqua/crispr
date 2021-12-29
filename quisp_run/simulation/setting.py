@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import List, Optional, TYPE_CHECKING
-from quisp_run.path_convert import replace_path_placeholder
+from quisp_run.utils import replace_path_placeholder
 
 if TYPE_CHECKING:
-    from sim_context import SimContext
+    from .context import SimContext
 
 
 @dataclass
@@ -22,13 +22,13 @@ class SimSetting:
 
         opt_str = "--**.buffers={} ".format(self.num_buf)
         opt_str += "--network=topology.{}_network ".format(self.network_type)
-        opt_str += "--{}_network.connectionType=\"{}\" ".format(self.network_type, self.connection_type)
+        # opt_str += "--{}_network.connectionType=\"{}\" ".format(self.network_type, self.connection_type)
 
         cmd = [
             self.context.exe_path,
             "-u",
             self.context.ui,
-            replace_path_placeholder( self.config_ini_file),
+            replace_path_placeholder(self.config_ini_file),
             "-n",
             self.context.ned_path,
             opt_str,

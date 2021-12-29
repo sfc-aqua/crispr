@@ -2,18 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import click
-import sys
-import os
-import asyncio
+import sys, os, asyncio
+from typing import List
 from rich.theme import Theme
 from rich.console import Console
-from quisp_run.worker import Worker
-from quisp_run.job_dispaly import job_display
-from quisp_run.sim_setting import SimSetting
-from quisp_run.sim_context import SimContext
-from quisp_run.writer import Writer
-from typing import List
-from quisp_run.config_parser import parse_config
+from quisp_run.simulation import SimContext, SimSetting
+from quisp_run.workers import Executor, Writer, job_display
+from quisp_run.config import parse_config
+
 theme = Theme(
     {
         "sim_name": "blue",
@@ -25,9 +21,11 @@ theme = Theme(
 )
 console = Console(theme=theme)
 
+
 @click.group()
 def cli():
     click.echo("hello")
+
 
 @cli.command()
 @click.option(
@@ -71,7 +69,7 @@ def run(ui, ned_path, config_file, sim_name, quisp_root, dryrun):
         print(f"quisp executable not found", file=sys.stderr)
         exit(1)
 
-    config_file = os.path.abspath(os.path.join(os.getcwd(),  config_file))
+    config_file = os.path.abspath(os.path.join(os.getcwd(), config_file))
 
     # add config dir to ned path
     ned_path += ":" + os.path.abspath(os.path.join(os.getcwd(), "config/topology"))
@@ -94,7 +92,7 @@ async def start_simulations(
     pool_size = 8
     sim_settings: List[SimSetting] = []
 
-    with open("simulation.plan","r") as f:
+    with open("simulation.plan", "r") as f:
         source = f.read()
         plan = parse_config(source)
         sim_settings = plan.populate()
@@ -103,22 +101,25 @@ async def start_simulations(
         exe_path, ui, ned_path, quisp_workdir, pool_size, sim_settings
     )
 
-    workers = [Worker(i, sim_context) for i in range(pool_size)]
+    workers = [Executor(i, sim_context) for i in range(pool_size)]
     worker_tasks = [asyncio.create_task(worker.run()) for worker in workers]
     display_task = asyncio.create_task(job_display(workers, sim_context, console))
     writer = Writer(sim_context)
     writer_task = asyncio.create_task(writer.run())
-    await asyncio.gather(display_task,writer_task, *worker_tasks)
+    await asyncio.gather(display_task, writer_task, *worker_tasks)
+
 
 @cli.command()
 def parse():
-    with open("simulation.plan","r") as f:
+    with open("simulation.plan", "r") as f:
         source = f.read()
         sim_plan = parse_config(source)
         console.print(sim_plan.populate()[0])
 
+
 def main():
     cli()
+
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,12 @@
+import asyncio
+from typing import List
 from rich import progress
 from rich.console import Console, Group
 from rich.progress import Progress
 from rich.live import Live
-from typing import List
-import asyncio
 
-from quisp_run.sim_context import SimContext
-from quisp_run.worker import Worker, WorkerStatus
+from quisp_run.simulation import SimContext
+from quisp_run.workers.executor import Executor, WorkerStatus
 
 
 def simulation_progress(console: Console) -> Progress:
@@ -22,7 +22,7 @@ def simulation_progress(console: Console) -> Progress:
 
 
 async def job_display(
-    workers: List[Worker],
+    workers: List[Executor],
     context: SimContext,
     console: Console,
 ):
@@ -78,8 +78,6 @@ async def job_display(
             if context.simulations.empty():
                 await context.results.put(None)
                 break
-            total_progress.update(
-                total_progress_task, completed=context.done.qsize()
-            )
+            total_progress.update(total_progress_task, completed=context.done.qsize())
             await asyncio.sleep(0.02)
         total_progress.update(total_progress_task, advance=1)

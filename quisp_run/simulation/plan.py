@@ -1,14 +1,22 @@
 from typing import List, Optional, TypedDict, Dict
 import itertools
-from quisp_run.sim_setting import SimSetting
-DEFAULT_SIM_TARGET_PARAMETERS: List[str] = ["num_bufs", "num_nodes", "network_types", "connection_types", "config_ini_file"]
+from quisp_run.simulation import SimSetting
+
+DEFAULT_SIM_TARGET_PARAMETERS: List[str] = [
+    "num_bufs",
+    "num_nodes",
+    "network_types",
+    "connection_types",
+    "config_ini_file",
+]
 DEFAULT_SETTING_KEY_DICT: Dict[str, str] = {
     "num_bufs": "num_buf",
     "num_nodes": "num_node",
     "network_types": "network_type",
     "config_ini_file": "config_ini_file",
-    "connection_types": "connection_type"
+    "connection_types": "connection_type",
 }
+
 
 class ConfigVars(TypedDict):
     title: str
@@ -18,7 +26,8 @@ class ConfigVars(TypedDict):
     config_ini_file: str
     error: Optional[Exception]
     param_keys: List[str]
-    setting_key_dict: Dict[str,str]
+    setting_key_dict: Dict[str, str]
+
 
 class SimPlan:
     config_vars: ConfigVars
@@ -36,7 +45,14 @@ class SimPlan:
         keys = self.config_vars["param_keys"]
         setting_keys = [k for k in keys]
         settings = []
-        for params in itertools.product(*[self.config_vars[key] if isinstance(self.config_vars[key],list) else [self.config_vars[key]] for key in keys]):
+        for params in itertools.product(
+            *[
+                self.config_vars[key]
+                if isinstance(self.config_vars[key], list)
+                else [self.config_vars[key]]
+                for key in keys
+            ]
+        ):
             assert len(params) == len(keys)
             setting_keys = [self.config_vars["setting_key_dict"][k] for k in keys]
             settings.append(SimSetting(**dict(zip(setting_keys, params))))

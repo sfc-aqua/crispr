@@ -1,9 +1,11 @@
-from quisp_run.config_parser import parse_config
-import sys
+from quisp_run.config.parser import parse_config
+
+
 def test_empty_plan():
     plan_source = ""
     plan = parse_config(plan_source)
     assert plan["title"] == ""
+
 
 def test_simple_plan():
     plan_source = """
@@ -16,6 +18,7 @@ network_types = ["linear"]
     plan = parse_config(plan_source)
     assert plan["title"] == "example plan"
 
+
 def test_parse_indentation_error():
     plan_source = """
 # simulation plan
@@ -27,4 +30,4 @@ network_types = ["linear"]
     plan = parse_config(plan_source)
 
     assert plan["title"] == ""
-    assert isinstance(plan["error"] ,IndentationError)
+    assert isinstance(plan["error"], IndentationError)
