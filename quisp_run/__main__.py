@@ -1,8 +1,4 @@
-from quisp_run import cmd
-
-
-def main():
-    cmd.main()
+from quisp_run.main import main
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 .PHONY: format build all clean
 format:
-	poetry run black ./quisp_run/*.py ./quisp_run/**/*.py -v
+	poetry run black ./quisp_run/*.py ./quisp_run/**/*.py 
 
 build:
 	poetry build

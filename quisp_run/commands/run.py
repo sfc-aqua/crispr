@@ -1,33 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+import os, sys, asyncio
 import click
-import sys, os, asyncio
 from typing import List
-from rich.theme import Theme
-from rich.console import Console
+
 from quisp_run.simulation import SimContext, SimSetting
 from quisp_run.workers import Executor, Writer, job_display
 from quisp_run.config import parse_config
 
-theme = Theme(
-    {
-        "sim_name": "blue",
-        "log": "green",
-        "status": "cyan",
-        "num_events": "green",
-        "ev_per_sec": "yellow",
-    }
-)
-console = Console(theme=theme)
+from quisp_run.utils import console
 
 
-@click.group()
-def cli():
-    click.echo("hello")
-
-
-@cli.command()
+@click.command()
 @click.option(
     "--ui",
     "-u",
@@ -107,19 +89,3 @@ async def start_simulations(
     writer = Writer(sim_context)
     writer_task = asyncio.create_task(writer.run())
     await asyncio.gather(display_task, writer_task, *worker_tasks)
-
-
-@cli.command()
-def parse():
-    with open("simulation.plan", "r") as f:
-        source = f.read()
-        sim_plan = parse_config(source)
-        console.print(sim_plan.populate()[0])
-
-
-def main():
-    cli()
-
-
-if __name__ == "__main__":
-    main()

@@ -3,7 +3,7 @@ name = "quisp_run"
 version = "0.1.0"
 description = ""
 authors = ["zigen <hrlclb@gmail.com>"]
-include = ["benchmarks"]
+include = ["templates"]
 packages = [ {include = "quisp_run"}]
 
 [tool.poetry.dependencies]
@@ -22,7 +22,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-quisp_run = "quisp_run.cmd:main"
+quisp_run = "quisp_run.main:main"
 
 [tool.poetry.build]
 generate-setup-file = false
