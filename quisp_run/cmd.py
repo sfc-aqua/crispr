@@ -12,7 +12,7 @@ from quisp_run.job_dispaly import job_display
 from quisp_run.sim_setting import SimSetting
 from quisp_run.sim_context import SimContext
 from quisp_run.writer import Writer
-from typing import List, Mapping, Optional, TypedDict
+from typing import List
 from quisp_run.config_parser import parse_config
 theme = Theme(
     {
@@ -71,10 +71,10 @@ def run(ui, ned_path, config_file, sim_name, quisp_root, dryrun):
         print(f"quisp executable not found", file=sys.stderr)
         exit(1)
 
-    config_file = os.path.abspath(os.path.join(os.getcwd(), "benchmarks", config_file))
+    config_file = os.path.abspath(os.path.join(os.getcwd(),  config_file))
 
-    # add benchmark dir to ned path
-    ned_path += ":" + os.path.abspath(os.path.join(os.getcwd(), "benchmarks"))
+    # add config dir to ned path
+    ned_path += ":" + os.path.abspath(os.path.join(os.getcwd(), "config/topology"))
 
     asyncio.run(
         start_simulations(
@@ -92,19 +92,15 @@ async def start_simulations(
 
     console.print(f"Working dir: {quisp_workdir}")
     pool_size = 8
-    sim_setings = []
-    num_bufs = range(5, 100)
-    num_nodes = [10, 20, 30, 40, 50]
-    network_types = ["linear"]
-    for network_type in network_types:
-        for num_buf in num_bufs:
-            for num_node in num_nodes:
-                sim_setings.append(
-                    SimSetting(num_buf, num_node, network_type, config_file)
-                )
+    sim_settings: List[SimSetting] = []
+
+    with open("simulation.plan","r") as f:
+        source = f.read()
+        plan = parse_config(source)
+        sim_settings = plan.populate()
 
     sim_context = SimContext(
-        exe_path, ui, ned_path, quisp_workdir, pool_size, sim_setings
+        exe_path, ui, ned_path, quisp_workdir, pool_size, sim_settings
     )
 
     workers = [Worker(i, sim_context) for i in range(pool_size)]
@@ -119,7 +115,7 @@ def parse():
     with open("simulation.plan","r") as f:
         source = f.read()
         sim_plan = parse_config(source)
-        console.print(sim_plan)
+        console.print(sim_plan.populate()[0])
 
 def main():
     cli()

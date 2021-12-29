@@ -1,13 +1,13 @@
 import asyncio
 import re
 from rich.progress import TaskID
+
 from typing import List, Optional
 from enum import Enum
 from quisp_run.result import Result
 from quisp_run.sim_context import SimContext
 from quisp_run.sim_setting import SimSetting
-
-
+from rich.console import Console
 class WorkerStatus(Enum):
     WAINTING_FOR_TASK = "Waiting for task"
     STARTING = "Starting"
@@ -29,6 +29,7 @@ class Worker:
     real_time_str: str = ""
     sys_time_str: str = ""
     error_messages: str = ""
+    console = Console()
 
     # these fields are refered by job_diplay, so you need to aquire lock before writing to it.
     lock: asyncio.Lock
@@ -61,6 +62,7 @@ class Worker:
 
             await self.switch_simulation(setting)
             cmd_list = setting.to_command_list()
+            self.console.log(cmd_list)
             await self.run_quisp(cmd_list)
             result = self.get_result()
             await ctx.results.put(result)
