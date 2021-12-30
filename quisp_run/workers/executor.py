@@ -60,7 +60,6 @@ class Executor:
 
             await self.switch_simulation(setting)
             cmd_list = setting.to_command_list()
-            self.console.log(cmd_list)
             await self.run_quisp(cmd_list)
             result = self.get_result()
             await ctx.results.put(result)
@@ -155,7 +154,7 @@ class Executor:
                 elif buf.startswith("user"):
                     self.user_time_str = buf.split("\t")[1]
                 elif buf:
-                    print("Err: ", buf)
+                    self.context.log("[red]Err: ", buf)
                     self.error_messages += buf + "\n"
                     await self.set_status(WorkerStatus.ERROR)
             await asyncio.sleep(1)

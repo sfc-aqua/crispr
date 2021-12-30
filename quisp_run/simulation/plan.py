@@ -1,6 +1,11 @@
 from typing import List, Optional, TypedDict, Dict
-import itertools
+import itertools, os, time, shutil
 from quisp_run.simulation import SimSetting
+from quisp_run.constants import (
+    QUISP_RUN_ROOT_DIR,
+    QUISP_TEMPALTE_OMNETPP_INI,
+    QUISP_TEMPALTE_TOPOLOGY_DIR,
+)
 
 DEFAULT_SIM_TARGET_PARAMETERS: List[str] = [
     "num_bufs",
@@ -9,6 +14,7 @@ DEFAULT_SIM_TARGET_PARAMETERS: List[str] = [
     "connection_types",
     "config_ini_file",
 ]
+
 DEFAULT_SETTING_KEY_DICT: Dict[str, str] = {
     "num_bufs": "num_buf",
     "num_nodes": "num_node",
@@ -31,6 +37,9 @@ class ConfigVars(TypedDict):
 
 class SimPlan:
     config_vars: ConfigVars
+    settings: List[SimSetting] = []
+    result_dir: str = ""
+    ned_path: str = ""
 
     def __init__(self, config_vars: ConfigVars):
         self.config_vars = config_vars
@@ -56,7 +65,41 @@ class SimPlan:
             assert len(params) == len(keys)
             setting_keys = [self.config_vars["setting_key_dict"][k] for k in keys]
             settings.append(SimSetting(**dict(zip(setting_keys, params))))
+        self.settings = settings
         return settings
+
+    def generate_ini_config(self) -> str:
+        return ""
+
+    def create_result_dir(self):
+        root = os.path.join(QUISP_RUN_ROOT_DIR, "results")
+        result_dir = os.path.join(root, self.get_result_dir_name())
+        os.makedirs(result_dir)
+        self.result_dir = result_dir
+        shutil.copy(QUISP_TEMPALTE_OMNETPP_INI, os.path.join(result_dir, "omnetpp.ini"))
+        topology_path = os.path.join(result_dir, "topology")
+        shutil.copytree(QUISP_TEMPALTE_TOPOLOGY_DIR, topology_path)
+        self.ned_path = topology_path
+
+    def write_config(self):
+        assert (
+            self.result_dir != ""
+        ), "SimPlan.result_dir is empty, call SimPlan.create_result_dir() first"
+        config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
+        with open(config_file_path, "a") as f:
+            for setting in self.settings:
+                setting.config_ini_file = config_file_path
+                config_str = setting.generate_config()
+                f.write(f"[Config {setting.sim_name}]\n")
+                f.write(config_str)
+                f.write("\n\n")
+
+    def get_result_dir_name(self) -> str:
+        return (
+            time.strftime("%Y-%m-%d_%H-%M-%S")
+            + "-"
+            + self.config_vars["title"].replace(" ", "_").replace("/", "_")
+        )
 
 
 def new_config_vars():

@@ -26,7 +26,6 @@ async def job_display(
     context: SimContext,
     console: Console,
 ):
-    console.print("[status]Starting Simulation")
     total_progress = Progress(
         "[status]{task.description}",
         progress.BarColumn(),
@@ -36,7 +35,9 @@ async def job_display(
     )
     sim_progress = simulation_progress(console)
     progress_group = Group(Group(sim_progress), total_progress)  # type: ignore
-    with Live(progress_group):
+    with Live(progress_group) as live:
+        live.console.log("[status]Starting Simulation")
+        context.live = live
         for worker in workers:
             worker.task_id = sim_progress.add_task(
                 "Starting",
@@ -81,3 +82,4 @@ async def job_display(
             total_progress.update(total_progress_task, completed=context.done.qsize())
             await asyncio.sleep(0.02)
         total_progress.update(total_progress_task, advance=1)
+        context.live = None

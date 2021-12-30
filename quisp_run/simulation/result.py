@@ -24,3 +24,6 @@ class Result:
             "real": self.real_time_str,
             "error": self.error_message,
         }
+
+    def to_log_str(self) -> str:
+        return f"{self.setting.sim_name} {self.num_total_events} events, {self.final_events_per_sec} ev/s"

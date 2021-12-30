@@ -1,3 +1,8 @@
+old/
+results/
+*.pickle
+*.pkl
+
 # OMNeT++
 .cmdenv-log
 .qtenvrc

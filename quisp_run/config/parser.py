@@ -1,5 +1,14 @@
-import sys
 from quisp_run.simulation import SimPlan, new_config_vars
+from quisp_run.utils import console, error_console
+
+CONFIG_EVAL_ENV_GLOBALS = {
+    "__builtins__": {
+        "range": range,
+        "list": list,
+        "filter": filter,
+        "map": map,
+    }
+}
 
 
 def parse_config(plan_source: str) -> SimPlan:
@@ -7,22 +16,17 @@ def parse_config(plan_source: str) -> SimPlan:
     try:
         exec(
             plan_source,
-            {
-                "__builtins__": {
-                    "range": range,
-                    "list": list,
-                    "filter": filter,
-                    "map": map,
-                }
-            },
+            CONFIG_EVAL_ENV_GLOBALS,
             config_vars,
         )
-    except IndentationError as e:
-        print(e, file=sys.stderr)
-        config_vars["error"] = e
+
     except Exception as e:
-        print("Unexpected error:", e, file=sys.stderr)
+        error_console.print("\n[red]Failed to parse the config file")
+        error_console.print_exception(max_frames=0)
         config_vars["error"] = e
+        exit(1)
+
+    # console.print(config_vars)
 
     plan = SimPlan(config_vars)
     return plan

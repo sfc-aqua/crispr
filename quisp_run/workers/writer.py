@@ -1,6 +1,7 @@
 import pickle
 from typing import Dict
 from quisp_run.simulation import SimContext
+from quisp_run.utils import console
 
 
 class Writer:
@@ -20,4 +21,4 @@ class Writer:
             self.results[result.setting.sim_name] = result.to_dict()
             with open("tmp_results.pickle", "wb") as f:
                 pickle.dump(self.results, f)
-            print(result.to_dict())
+            self.context.log(result.to_log_str())

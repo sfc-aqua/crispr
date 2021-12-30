@@ -20,20 +20,39 @@ class SimSetting:
     def to_command_list(self) -> List[str]:
         assert self.context is not None, "SimSetting.context is None"
 
-        opt_str = "--**.buffers={} ".format(self.num_buf)
-        opt_str += "--network=topology.{}_network ".format(self.network_type)
-        # opt_str += "--{}_network.connectionType=\"{}\" ".format(self.network_type, self.connection_type)
-
         cmd = [
             self.context.exe_path,
             "-u",
             self.context.ui,
             replace_path_placeholder(self.config_ini_file),
+            "-c",
+            self.sim_name,
             "-n",
             self.context.ned_path,
-            opt_str,
         ]
         return cmd
+
+    def generate_config(self) -> str:
+        config_str = ""
+        config_str += "network=topology.{}_network\n".format(self.network_type)
+        config_str += "**.buffers={}\n".format(self.num_buf)
+        config_str += '{}_network.connectionType="{}"\n'.format(
+            self.network_type, self.connection_type
+        )
+
+        traffic_pattern_index: int = 1
+        num_purification: int = 1
+        lone_initiator_addr: int = 0
+        link_tomography_enabled: bool = False
+        purification_type: str = "1001"
+        config_str += "**.app.TrafficPattern={}\n".format(traffic_pattern_index)
+        config_str += "**.app.LoneInitiatorAddress={}\n".format(lone_initiator_addr)
+        config_str += "**.qrsa.hm.link_tomography={}\n".format(
+            str(link_tomography_enabled).lower()
+        )
+        config_str += "**.qrsa.hm.initial_purification={}\n".format(num_purification)
+        config_str += "**.qrsa.hm.Purification_type={}\n".format(purification_type)
+        return config_str
 
     @property
     def config_name(self) -> str:
@@ -41,7 +60,7 @@ class SimSetting:
 
     @property
     def sim_name(self) -> str:
-        return f"{self.config_name}-buf{self.num_buf}"
+        return f"buf{self.num_buf}-nodes-{self.num_node}-{self.network_type}-{self.connection_type}-"
 
     def to_command_str(self) -> str:
         return " ".join(self.to_command_list())
