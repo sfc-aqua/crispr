@@ -74,6 +74,9 @@ async def start_simulations(
         source = f.read()
         plan = parse_config(source)
         plan.populate()
+    if not plan.settings:
+        error_console.print("[red]No simulation settings found in plan.")
+        exit(1)
     result_dir = plan.create_result_dir()
     plan.write_config()
     shutil.copy(simulation_plan_file_path, result_dir)
