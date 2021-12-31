@@ -4,7 +4,7 @@
 import click
 from typing import List
 
-from quisp_run.commands import run, parse
+from quisp_run.commands import run, parse_config
 
 
 @click.group()

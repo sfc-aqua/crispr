@@ -4,7 +4,7 @@ from quisp_run.utils import console
 
 
 @click.command()
-def parse():
+def parse_config():
     with open("simulation.plan", "r") as f:
         source = f.read()
         sim_plan = parse_config(source)
