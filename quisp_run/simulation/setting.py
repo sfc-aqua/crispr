@@ -47,7 +47,7 @@ class SimSetting:
             os.path.join(result_root_dir, "results", self.sim_name)
         )
 
-        traffic_pattern_index: int = 1
+        traffic_pattern_index: int = 2
         num_purification: int = 1
         lone_initiator_addr: int = 0
         link_tomography_enabled: bool = False
