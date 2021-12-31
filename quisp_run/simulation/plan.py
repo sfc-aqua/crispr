@@ -68,7 +68,7 @@ class SimPlan:
         self.settings = settings
         return settings
 
-    def create_result_dir(self):
+    def create_result_dir(self) -> str:
         root = os.path.join(QUISP_RUN_ROOT_DIR, "results")
         result_dir = os.path.join(root, self.get_result_dir_name())
         os.makedirs(result_dir)
@@ -77,6 +77,7 @@ class SimPlan:
         topology_path = os.path.join(result_dir, "topology")
         shutil.copytree(QUISP_TEMPALTE_TOPOLOGY_DIR, topology_path)
         self.ned_path = topology_path
+        return result_dir
 
     def write_config(self):
         assert (
