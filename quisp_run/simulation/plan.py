@@ -68,9 +68,6 @@ class SimPlan:
         self.settings = settings
         return settings
 
-    def generate_ini_config(self) -> str:
-        return ""
-
     def create_result_dir(self):
         root = os.path.join(QUISP_RUN_ROOT_DIR, "results")
         result_dir = os.path.join(root, self.get_result_dir_name())
@@ -89,7 +86,7 @@ class SimPlan:
         with open(config_file_path, "a") as f:
             for setting in self.settings:
                 setting.config_ini_file = config_file_path
-                config_str = setting.generate_config()
+                config_str = setting.generate_config(self.result_dir)
                 f.write(f"[Config {setting.sim_name}]\n")
                 f.write(config_str)
                 f.write("\n\n")

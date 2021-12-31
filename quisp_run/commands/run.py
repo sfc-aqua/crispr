@@ -22,8 +22,9 @@ from quisp_run.utils import console, error_console
     default="./modules:./channels:./networks",
     help="colon separated path list to NED files",
 )
+@click.option("--pool-size", "-p", default=4, help="number of workers to use")
 @click.option("--quisp-root", "-r", default="../quisp", help="QuISP root directory")
-def run(ui, ned_path, quisp_root):
+def run(ui, ned_path, quisp_root, pool_size):
     if not os.path.exists(quisp_root):
         error_console.print(f"quisp_root: {quisp_root} not found")
         exit(1)
@@ -35,12 +36,11 @@ def run(ui, ned_path, quisp_root):
         error_console.print(f"quisp executable not found")
         exit(1)
 
-    asyncio.run(start_simulations(exe_path, ui, ned_path, quisp_workdir))
+    asyncio.run(start_simulations(exe_path, ui, ned_path, quisp_workdir, pool_size))
 
 
-async def start_simulations(exe_path, ui, ned_path, quisp_workdir):
+async def start_simulations(exe_path, ui, ned_path, quisp_workdir, pool_size):
     console.print(f"Working dir: {quisp_workdir}")
-    pool_size = 8
     plan = None
 
     # populate simulation settings from simulation plan

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, TYPE_CHECKING
 from quisp_run.utils import replace_path_placeholder
+import os
 
 if TYPE_CHECKING:
     from .context import SimContext
@@ -32,7 +33,7 @@ class SimSetting:
         ]
         return cmd
 
-    def generate_config(self) -> str:
+    def generate_config(self, result_root_dir: str) -> str:
         config_str = ""
         config_str += "network=topology.{}_network\n".format(self.network_type)
         config_str += "**.buffers={}\n".format(self.num_buf)
@@ -41,6 +42,9 @@ class SimSetting:
         )
         config_str += "{}_network.numNodes={}\n".format(
             self.network_type, self.num_node
+        )
+        config_str += '**.tomography_output_filename="{}"\n'.format(
+            os.path.join(result_root_dir, "results", self.sim_name)
         )
 
         traffic_pattern_index: int = 1
