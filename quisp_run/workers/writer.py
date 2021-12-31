@@ -1,4 +1,4 @@
-import pickle
+import pickle, os
 from typing import Dict
 from quisp_run.simulation import SimContext
 
@@ -18,6 +18,8 @@ class Writer:
             if result is None:
                 break
             self.results[result.setting.sim_name] = result.to_dict()
-            with open("tmp_results.pickle", "wb") as f:
+            with open(
+                os.path.join(self.context.result_dir, "results.pickle"), "wb"
+            ) as f:
                 pickle.dump(self.results, f)
             self.context.log(result.to_log_str())

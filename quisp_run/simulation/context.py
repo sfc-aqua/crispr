@@ -22,6 +22,7 @@ class SimContext:
     ui: OmnetppEnv
     ned_path: str
     working_dir: str
+    result_dir: str
     pool_size: int
     simulations: asyncio.Queue[Optional[SimSetting]]
     results: asyncio.Queue[Optional[Result]]
@@ -49,6 +50,7 @@ class SimContext:
             setting.context = self
         for _ in range(pool_size):
             self.simulations.put_nowait(None)
+        self.result_dir = plan.result_dir
         self.results = asyncio.Queue(num_simulations)
         self.done = asyncio.Queue(num_simulations)
         self.live = None
