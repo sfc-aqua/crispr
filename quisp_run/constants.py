@@ -9,6 +9,7 @@ QUISP_TEMPALTE_TOPOLOGY_DIR = os.path.join(QUISP_RUN_ROOT_DIR, "templates", "top
 
 DEFAULT_RICH_CONSOLE_THEME = Theme(
     {
+        "task_name": "magenta",
         "sim_name": "blue",
         "log": "green",
         "status": "cyan",

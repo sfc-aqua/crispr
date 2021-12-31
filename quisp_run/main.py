@@ -13,4 +13,4 @@ def main():
 
 
 main.add_command(run)
-main.add_command(parse)
+main.add_command(parse_config)

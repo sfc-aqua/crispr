@@ -12,7 +12,7 @@ from quisp_run.workers.executor import Executor, WorkerStatus
 def simulation_progress(console: Console) -> Progress:
     return Progress(
         progress.SpinnerColumn(),
-        "[red]{task.fields[sim_name]}",
+        "[task_name]{task.fields[sim_name]}",
         "[status]{task.description}",
         "[num_events]{task.fields[num_events]} events",
         "[ev_per_sec]{task.fields[ev_per_sec]} ev/sec",
@@ -35,7 +35,7 @@ async def job_display(
     )
     sim_progress = simulation_progress(console)
     progress_group = Group(Group(sim_progress), total_progress)  # type: ignore
-    with Live(progress_group) as live:
+    with Live(progress_group, console=console) as live:
         live.console.log("[status]Starting Simulation")
         context.live = live
         for worker in workers:
