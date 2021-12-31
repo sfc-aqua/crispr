@@ -23,20 +23,21 @@ from quisp_run.utils import console, error_console
     help="colon separated path list to NED files",
 )
 @click.option("--pool-size", "-p", default=4, help="number of workers to use")
-@click.option("--quisp-root", "-r", default="../quisp", help="QuISP root directory")
-@click.argument(
-    "simulation_plan_file_path", type=click.Path(exists=True), required=False
-)
+@click.option("--quisp-root", "-r", default=None, help="QuISP root directory")
+@click.argument("simulation_plan_file_path", type=click.Path(exists=True), required=False)
 def run(ui, ned_path, quisp_root, pool_size, simulation_plan_file_path):
+    current_working_dir = os.getcwd()
+
     if simulation_plan_file_path is None:
-        simulation_plan_file_path = os.path.join(os.getcwd(), "simulation.plan")
+        simulation_plan_file_path = os.path.join(current_working_dir, "simulation.plan")
+
+    if quisp_root is None:
+        quisp_root = os.path.join(current_working_dir)
 
     if not os.path.exists(simulation_plan_file_path) or not os.path.isfile(
         simulation_plan_file_path
     ):
-        error_console.print(
-            f"Simulation plan file not found: {simulation_plan_file_path}"
-        )
+        error_console.print(f"Simulation plan file not found: {simulation_plan_file_path}")
         exit(1)
 
     if not os.path.exists(quisp_root):

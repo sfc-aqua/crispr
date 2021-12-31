@@ -46,9 +46,7 @@ async def job_display(
                 ev_per_sec=0,
                 sim_name=worker.sim_name,
             )
-        total_progress_task = total_progress.add_task(
-            "total", total=context.simulations.qsize()
-        )
+        total_progress_task = total_progress.add_task("total", total=context.simulations.qsize())
         while True:
             for worker in workers:
                 async with worker.lock:

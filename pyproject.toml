@@ -26,3 +26,6 @@ quisp_run = "quisp_run.main:main"
 
 [tool.poetry.build]
 generate-setup-file = false
+
+[tool.black]
+line-length = 100

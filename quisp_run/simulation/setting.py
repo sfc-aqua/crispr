@@ -40,9 +40,7 @@ class SimSetting:
         config_str += '{}_network.connectionType="{}"\n'.format(
             self.network_type, self.connection_type
         )
-        config_str += "{}_network.numNodes={}\n".format(
-            self.network_type, self.num_node
-        )
+        config_str += "{}_network.numNodes={}\n".format(self.network_type, self.num_node)
         config_str += '**.tomography_output_filename="{}"\n'.format(
             os.path.join(result_root_dir, "results", self.sim_name)
         )
@@ -54,9 +52,7 @@ class SimSetting:
         purification_type: str = "1001"
         config_str += "**.app.TrafficPattern={}\n".format(traffic_pattern_index)
         config_str += "**.app.LoneInitiatorAddress={}\n".format(lone_initiator_addr)
-        config_str += "**.qrsa.hm.link_tomography={}\n".format(
-            str(link_tomography_enabled).lower()
-        )
+        config_str += "**.qrsa.hm.link_tomography={}\n".format(str(link_tomography_enabled).lower())
         config_str += "**.qrsa.hm.initial_purification={}\n".format(num_purification)
         config_str += "**.qrsa.hm.Purification_type={}\n".format(purification_type)
         return config_str
@@ -67,7 +63,9 @@ class SimSetting:
 
     @property
     def sim_name(self) -> str:
-        return f"buf{self.num_buf}-nodes-{self.num_node}-{self.network_type}-{self.connection_type}-"
+        return (
+            f"buf{self.num_buf}-nodes-{self.num_node}-{self.network_type}-{self.connection_type}-"
+        )
 
     def to_command_str(self) -> str:
         return " ".join(self.to_command_list())
