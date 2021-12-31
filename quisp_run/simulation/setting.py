@@ -39,6 +39,9 @@ class SimSetting:
         config_str += '{}_network.connectionType="{}"\n'.format(
             self.network_type, self.connection_type
         )
+        config_str += "{}_network.numNodes={}\n".format(
+            self.network_type, self.num_node
+        )
 
         traffic_pattern_index: int = 1
         num_purification: int = 1

@@ -1,7 +1,6 @@
 import pickle
 from typing import Dict
 from quisp_run.simulation import SimContext
-from quisp_run.utils import console
 
 
 class Writer:
