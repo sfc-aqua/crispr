@@ -58,6 +58,12 @@ class Executor:
                 await self.set_status(WorkerStatus.STOPPED)
                 break
 
+            last_run_result = self.context.find_last_run(setting.sim_name)
+            if last_run_result is not None:
+                await ctx.results.put(last_run_result)
+                await ctx.done.put(None)
+                continue
+
             await self.switch_simulation(setting)
             cmd_list = setting.to_command_list()
             await self.run_quisp(cmd_list)
@@ -69,6 +75,7 @@ class Executor:
         assert self.setting is not None
         return Result(
             setting=self.setting,
+            sim_name=self.sim_name,
             num_buf=self.setting.num_buf,
             num_total_events=self.num_events,
             final_events_per_sec=self.ev_per_sec,

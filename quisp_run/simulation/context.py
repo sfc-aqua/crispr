@@ -1,8 +1,8 @@
-import asyncio
+import asyncio, pickle, os
 from typing import TYPE_CHECKING
 from rich.live import Live
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Any
 from .setting import SimSetting
 from .result import Result
 
@@ -26,6 +26,7 @@ class SimContext:
     pool_size: int
     simulations: asyncio.Queue[Optional[SimSetting]]
     results: asyncio.Queue[Optional[Result]]
+    last_results: Optional[Any] = None
     done: asyncio.Queue[None]
     live: Optional[Live]
 
@@ -54,6 +55,17 @@ class SimContext:
         self.results = asyncio.Queue(num_simulations)
         self.done = asyncio.Queue(num_simulations)
         self.live = None
+        pickle_file_path = os.path.join(plan.result_dir, "results.pickle")
+        if os.path.isfile(pickle_file_path):
+            with open(pickle_file_path, "rb") as f:
+                self.last_results = pickle.load(f)
+
+    def find_last_run(self, sim_name: str) -> Optional[Result]:
+        if self.last_results is None:
+            return None
+        if sim_name in self.last_results:
+            return Result.from_dict(self.last_results[sim_name])
+        return None
 
     def log(self, *args, **kwargs):
         if self.live is not None:

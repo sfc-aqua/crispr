@@ -102,7 +102,6 @@ def start_simulations(
         )
         ned_path += ":" + plan.ned_path
         state.ned_path = ned_path
-
     else:
         plan.set_result_dir(state.result_dir)
 

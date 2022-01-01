@@ -37,7 +37,6 @@ class State:
             os.makedirs(os.path.dirname(STATE_FILE_PATH), exist_ok=True)
 
         with open(STATE_FILE_PATH, "w") as f:
-            print(self.__dict__)
             json.dump(self.__dict__, f, default=encode)
 
     def delete(self):
