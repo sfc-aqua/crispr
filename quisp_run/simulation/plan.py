@@ -1,6 +1,7 @@
 from typing import List, Optional, TypedDict, Dict
 import itertools, os, time, shutil
 from quisp_run.simulation import SimSetting
+from quisp_run.state import State
 from quisp_run.constants import (
     QUISP_RUN_ROOT_DIR,
     QUISP_TEMPALTE_OMNETPP_INI,
@@ -92,12 +93,24 @@ class SimPlan:
                 f.write(config_str)
                 f.write("\n\n")
 
+    def set_result_dir(self, result_dir: str):
+        self.result_dir = result_dir
+        config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
+        for setting in self.settings:
+            setting.config_ini_file = config_file_path
+
     def get_result_dir_name(self) -> str:
         return (
             time.strftime("%Y-%m-%d_%H-%M-%S")
             + "-"
             + self.config_vars["title"].replace(" ", "_").replace("/", "_")
         )
+
+    def restore(self, state: "State"):
+        self.result_dir = state.result_dir
+        config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
+        for setting in self.settings:
+            setting.config_ini_file = config_file_path
 
 
 def new_config_vars():

@@ -14,7 +14,11 @@ class Writer:
 
     async def run(self):
         while True:
-            result = await self.context.results.get()
+            result = None
+            try:
+                result = await self.context.results.get()
+            except RuntimeError as e:
+                print("Writer Error: ", e)
             if result is None:
                 break
             self.results[result.setting.sim_name] = result.to_dict()

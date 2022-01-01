@@ -1,4 +1,3 @@
-from sys import stderr
 from rich.console import Console
 from quisp_run.constants import QUISP_RUN_ROOT_DIR, DEFAULT_RICH_CONSOLE_THEME
 

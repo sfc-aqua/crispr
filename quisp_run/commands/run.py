@@ -1,12 +1,13 @@
 import os, asyncio, shutil
 import click
-from typing import List
-
+from typing import List, Optional
+from rich.prompt import Confirm
 from quisp_run.simulation import SimContext, SimSetting
 from quisp_run.workers import Executor, Writer, job_display
 from quisp_run.config import parse_config
 
 from quisp_run.utils import console, error_console
+from quisp_run.state import State
 
 
 @click.command()
@@ -26,70 +27,97 @@ from quisp_run.utils import console, error_console
 @click.option("--quisp-root", "-r", default=None, help="QuISP root directory")
 @click.argument("simulation_plan_file_path", type=click.Path(exists=True), required=False)
 def run(ui, ned_path, quisp_root, pool_size, simulation_plan_file_path):
-    current_working_dir = os.getcwd()
+    state = State.load()
+    if state is not None:
+        console.print("[green]Found previous state.")
+        console.print(state.__dict__)
+        continue_run = Confirm.ask("Continue from last run?", default=True)
+        if not continue_run:
+            state.delete()
+            state = State()
+    if state is None:
+        state = State()
 
-    if simulation_plan_file_path is None:
-        simulation_plan_file_path = os.path.join(current_working_dir, "simulation.plan")
+    if not state.loaded:
+        state.current_working_dir = os.getcwd()
+        state.simulation_plan_file_path = simulation_plan_file_path
+        state.quisp_root = quisp_root
 
-    if quisp_root is None:
-        quisp_root = os.path.join(current_working_dir)
+        if state.simulation_plan_file_path is None:
+            state.simulation_plan_file_path = os.path.join(
+                state.current_working_dir, "simulation.plan"
+            )
 
-    if not os.path.exists(simulation_plan_file_path) or not os.path.isfile(
-        simulation_plan_file_path
+        if state.quisp_root is None:
+            state.quisp_root = os.path.join(state.current_working_dir)
+
+    if not os.path.exists(state.simulation_plan_file_path) or not os.path.isfile(
+        state.simulation_plan_file_path
     ):
-        error_console.print(f"Simulation plan file not found: {simulation_plan_file_path}")
+        error_console.print(f"Simulation plan file not found: {state.simulation_plan_file_path}")
         exit(1)
 
-    if not os.path.exists(quisp_root):
-        error_console.print(f"quisp_root: {quisp_root} not found")
+    if not os.path.exists(state.quisp_root):
+        error_console.print(f"quisp_root: {state.quisp_root} not found")
         exit(1)
 
-    quisp_workdir = os.path.join(quisp_root, "quisp")
+    state.quisp_workdir = os.path.join(state.quisp_root, "quisp")
     exe_path = "./quisp"
 
-    if not os.path.exists(os.path.join(quisp_root, exe_path)):
-        error_console.print(f"quisp executable not found")
+    if not os.path.exists(os.path.join(state.quisp_root, exe_path)):
+        error_console.print(f"[red]quisp executable not found")
         exit(1)
 
-    asyncio.run(
-        start_simulations(
-            exe_path, ui, ned_path, quisp_workdir, pool_size, simulation_plan_file_path
-        )
-    )
+    start_simulations(exe_path, ui, ned_path, pool_size, state)
 
 
-async def start_simulations(
+def start_simulations(
     exe_path,
     ui,
     ned_path: str,
-    quisp_workdir: str,
     pool_size: int,
-    simulation_plan_file_path: str,
+    state: State,
 ):
-    console.print(f"QuISP Working dir: {quisp_workdir}")
-    console.print(f"Simulation plan: {simulation_plan_file_path}")
+    console.print(f"QuISP Working dir: {state.quisp_workdir}")
+    console.print(f"Simulation plan: {state.simulation_plan_file_path}")
     plan = None
 
     # populate simulation settings from simulation plan
-    with open(simulation_plan_file_path, "r") as f:
+    with open(state.simulation_plan_file_path, "r") as f:
         source = f.read()
         plan = parse_config(source)
+        if state.loaded:
+            plan.restore(state)
         plan.populate()
+
     if not plan.settings:
         error_console.print("[red]No simulation settings found in plan.")
         exit(1)
-    result_dir = plan.create_result_dir()
-    plan.write_config()
-    shutil.copy(simulation_plan_file_path, result_dir)
-    ned_path += ":" + plan.ned_path
-    sim_context = SimContext(exe_path, ui, ned_path, quisp_workdir, pool_size, plan)
 
-    # setup workers
-    executors = [Executor(i, sim_context) for i in range(pool_size)]
-    worker_tasks = [asyncio.create_task(worker.run()) for worker in executors]
-    display_task = asyncio.create_task(job_display(executors, sim_context, console))
-    writer = Writer(sim_context)
-    writer_task = asyncio.create_task(writer.run())
+    if not state.loaded:
+        state.result_dir = plan.create_result_dir()
+        plan.write_config()
+        state.simulation_plan_file_path = shutil.copy(
+            state.simulation_plan_file_path, state.result_dir
+        )
+        ned_path += ":" + plan.ned_path
+        state.ned_path = ned_path
 
-    # run workers
-    await asyncio.gather(display_task, writer_task, *worker_tasks)
+    else:
+        plan.set_result_dir(state.result_dir)
+
+    async def run_workers():
+        # setup workers
+        sim_context = SimContext(exe_path, ui, state.ned_path, state.quisp_workdir, pool_size, plan)
+        executors = [Executor(i, sim_context) for i in range(pool_size)]
+        worker_tasks = [asyncio.create_task(worker.run()) for worker in executors]
+        display_task = asyncio.create_task(job_display(executors, sim_context, console))
+        writer = Writer(sim_context)
+        writer_task = asyncio.create_task(writer.run())
+        await asyncio.gather(display_task, writer_task, *worker_tasks)
+
+    try:
+        # run workers
+        asyncio.run(run_workers())
+    finally:
+        state.save()
