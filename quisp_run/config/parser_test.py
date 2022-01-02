@@ -27,7 +27,10 @@ title = "example plan"
 num_nodes = [10, 20, 30, 40, 50]
 network_types = ["linear"]
     """
-    plan = parse_config(plan_source)
-
-    assert plan["title"] == ""
-    assert isinstance(plan["error"], IndentationError)
+    plan = None
+    try:
+        plan = parse_config(plan_source)
+    except BaseException as e:
+        assert e is not None
+        assert isinstance(e, SystemExit)
+    assert plan is None

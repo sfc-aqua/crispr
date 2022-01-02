@@ -26,7 +26,5 @@ def parse_config(plan_source: str) -> SimPlan:
         config_vars["error"] = e
         exit(1)
 
-    # console.print(config_vars)
-
     plan = SimPlan(config_vars)
     return plan
