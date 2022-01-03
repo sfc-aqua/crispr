@@ -4,4 +4,4 @@ title = "example plan"
 num_bufs = [i for i in range(10, 200, 10)]
 num_nodes = [i for i in range(10, 200, 10)]
 network_types = ["linear"]
-connection_types = ["MIM", "MM"]
+connection_types = ["MIM", "MM"] 

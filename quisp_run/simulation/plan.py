@@ -1,5 +1,7 @@
-from typing import List, Optional, TypedDict, Dict
+from typing import List, Optional, TypedDict, Dict, Any
 import itertools, os, time, shutil
+from quisp_run import parameter_registry
+from quisp_run.parameter_registry import registry
 from quisp_run.simulation import SimSetting
 from quisp_run.state import State
 from quisp_run.constants import (
@@ -37,12 +39,12 @@ class ConfigVars(TypedDict):
 
 
 class SimPlan:
-    config_vars: ConfigVars
+    config_vars: Dict[str, Any]
     settings: List[SimSetting] = []
     result_dir: str = ""
     ned_path: str = ""
 
-    def __init__(self, config_vars: ConfigVars):
+    def __init__(self, config_vars: Dict[str, Any]):
         self.config_vars = config_vars
 
     def __getitem__(self, key):
@@ -52,20 +54,28 @@ class SimPlan:
         return self.config_vars.get("error") is not None
 
     def populate(self) -> List[SimSetting]:
-        keys = self.config_vars["param_keys"]
-        setting_keys = [k for k in keys]
+        def collect_parameters(vars: Dict[str, Any]):
+            keys = []
+            vals = []
+            for p in registry.parameters:
+                if p.plural is not None:
+                    if p.plural in vars:
+                        vals.append(vars[p.plural])
+                        keys.append(p.plural)
+                    elif p.singular is not None and p.singular in vars:
+                        vals.append([vars[p.singular]])
+                        keys.append(p.singular)
+                elif p.singular is not None and p.singular in vars:
+                    vals.append([vars[p.singular]])
+                    keys.append(p.singular)
+            return keys, vals
+
+        keys, vals = collect_parameters(self.config_vars)
         settings = []
-        for params in itertools.product(
-            *[
-                self.config_vars[key]
-                if isinstance(self.config_vars[key], list)
-                else [self.config_vars[key]]
-                for key in keys
-            ]
-        ):
+        for params in itertools.product(*vals):
             assert len(params) == len(keys)
-            setting_keys = [self.config_vars["setting_key_dict"][k] for k in keys]
-            settings.append(SimSetting(**dict(zip(setting_keys, params))))
+            setting_keys = [registry.get_singular_name(k) for k in keys]
+            settings.append(SimSetting(context=None, fields=dict(zip(setting_keys, params))))
         self.settings = settings
         return settings
 
@@ -119,7 +129,7 @@ def new_config_vars():
         num_nodes=[],
         num_bufs=[],
         network_types=[],
-        config_ini_file="${QUISP_RUN_ROOT_DIR}/config/omnetpp.ini",
+        config_ini_file="",
         error=None,
         param_keys=DEFAULT_SIM_TARGET_PARAMETERS,
         setting_key_dict=DEFAULT_SETTING_KEY_DICT,

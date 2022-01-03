@@ -7,17 +7,20 @@ if TYPE_CHECKING:
     from .context import SimContext
 
 
-@dataclass
 class SimSetting:
     """One Simulation Setting."""
 
-    num_buf: int
-    num_node: int
-    network_type: str
-    config_ini_file: str
-    connection_type: str
+    # num_buf: int
+    # num_node: int
+    # network_type: str
+    # config_ini_file: str
+    # connection_type: str
     context: "Optional[SimContext]" = None
     fields: Dict[str, Any] = field(default_factory=dict)
+
+    def __init__(self, context: "Optional[SimContext]", fields: dict):
+        self.context = context
+        self.fields = fields
 
     def to_command_list(self) -> List[str]:
         assert self.context is not None, "SimSetting.context is None"
@@ -60,19 +63,22 @@ class SimSetting:
 
     @property
     def config_name(self) -> str:
-        return "{}{}_mm_pur_es".format(self.network_type, self.num_node)
+        return self.__str__()
 
     @property
     def sim_name(self) -> str:
-        return (
-            f"buf{self.num_buf}-nodes-{self.num_node}-{self.network_type}-{self.connection_type}-"
-        )
+        return self.__str__()
 
     def to_command_str(self) -> str:
         return " ".join(self.to_command_list())
 
     def __str__(self) -> str:
-        return f"nodes_{self.num_node}_bufs_{self.num_buf}_network_{self.network_type}_{self.config_ini_file}"
+        s = ""
+        for f in self.fields:
+            if f == "config_ini_file":
+                continue
+            s += f + "_" + str(self.fields[f]) + "--"
+        return s[:-2]
 
     def __gt__(self, other):
         return str(self) > str(other)

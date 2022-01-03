@@ -1,5 +1,6 @@
 from quisp_run.simulation import SimPlan, new_config_vars
 from quisp_run.utils import console, error_console
+from quisp_run.parameter_registry import registry
 
 
 def define_param(*args, **kwargs):
@@ -20,8 +21,8 @@ CONFIG_EVAL_ENV_GLOBALS = {
 
 
 def parse_config(plan_source: str) -> SimPlan:
-    console.print("Parsing simulation plan...")
-    config_vars = new_config_vars()
+    console.print("[yellow]Parsing simulation plan...")
+    config_vars = registry.create_default_config_vars()
     try:
         exec(
             plan_source,
