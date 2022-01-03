@@ -38,13 +38,14 @@ class SimSetting:
         return cmd
 
     def generate_config(self, result_root_dir: str) -> str:
+        network_name = "{}_network".format(self.fields["network_type"])
         config_str = ""
-        config_str += "network=topology.{}_network\n".format(self.network_type)
-        config_str += "**.buffers={}\n".format(self.num_buf)
-        config_str += '{}_network.connectionType="{}"\n'.format(
-            self.network_type, self.connection_type
+        config_str += "network=topology.{}\n".format(network_name)
+        config_str += "**.buffers={}\n".format(self.fields["num_buf"])
+        config_str += '{}.connectionType="{}"\n'.format(
+            network_name, self.fields["connection_type"]
         )
-        config_str += "{}_network.numNodes={}\n".format(self.network_type, self.num_node)
+        config_str += "{}.numNodes={}\n".format(network_name, self.fields["num_node"])
         config_str += '**.tomography_output_filename="{}"\n'.format(
             os.path.join(result_root_dir, "results", self.sim_name)
         )
