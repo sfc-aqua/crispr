@@ -1,4 +1,4 @@
 from .context import SimContext
 from .setting import SimSetting
-from .plan import SimPlan, ConfigVars, new_config_vars
+from .plan import SimPlan
 from .result import Result

@@ -1,6 +1,5 @@
-from typing import List, Optional, TypedDict, Dict, Any
+from typing import List, Dict, Any
 import itertools, os, time, shutil
-from quisp_run import parameter_registry
 from quisp_run.parameter_registry import registry
 from quisp_run.simulation import SimSetting
 from quisp_run.state import State
@@ -9,33 +8,6 @@ from quisp_run.constants import (
     QUISP_TEMPALTE_OMNETPP_INI,
     QUISP_TEMPALTE_TOPOLOGY_DIR,
 )
-
-DEFAULT_SIM_TARGET_PARAMETERS: List[str] = [
-    "num_bufs",
-    "num_nodes",
-    "network_types",
-    "connection_types",
-    "config_ini_file",
-]
-
-DEFAULT_SETTING_KEY_DICT: Dict[str, str] = {
-    "num_bufs": "num_buf",
-    "num_nodes": "num_node",
-    "network_types": "network_type",
-    "config_ini_file": "config_ini_file",
-    "connection_types": "connection_type",
-}
-
-
-class ConfigVars(TypedDict):
-    title: str
-    num_nodes: Optional[List[int]]
-    num_bufs: Optional[List[int]]
-    network_types: Optional[List[str]]
-    config_ini_file: str
-    error: Optional[Exception]
-    param_keys: List[str]
-    setting_key_dict: Dict[str, str]
 
 
 class SimPlan:
@@ -71,10 +43,10 @@ class SimPlan:
             return keys, vals
 
         keys, vals = collect_parameters(self.config_vars)
+        setting_keys = [registry.get_singular_name(k) for k in keys]
         settings = []
         for params in itertools.product(*vals):
             assert len(params) == len(keys)
-            setting_keys = [registry.get_singular_name(k) for k in keys]
             settings.append(SimSetting(context=None, fields=dict(zip(setting_keys, params))))
         self.settings = settings
         return settings
@@ -121,16 +93,3 @@ class SimPlan:
         config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
         for setting in self.settings:
             setting.config_ini_file = config_file_path
-
-
-def new_config_vars():
-    return ConfigVars(
-        title="",
-        num_nodes=[],
-        num_bufs=[],
-        network_types=[],
-        config_ini_file="",
-        error=None,
-        param_keys=DEFAULT_SIM_TARGET_PARAMETERS,
-        setting_key_dict=DEFAULT_SETTING_KEY_DICT,
-    )

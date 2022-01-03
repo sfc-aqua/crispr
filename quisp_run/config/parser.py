@@ -1,4 +1,4 @@
-from quisp_run.simulation import SimPlan, new_config_vars
+from quisp_run.simulation import SimPlan
 from quisp_run.utils import console, error_console
 from quisp_run.parameter_registry import registry
 
