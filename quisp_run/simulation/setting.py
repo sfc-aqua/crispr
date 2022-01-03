@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING
+from dataclasses import dataclass, field
+from typing import List, Optional, TYPE_CHECKING, Any, Dict
 from quisp_run.utils import replace_path_placeholder
 import os
 
@@ -17,6 +17,7 @@ class SimSetting:
     config_ini_file: str
     connection_type: str
     context: "Optional[SimContext]" = None
+    fields: Dict[str, Any] = field(default_factory=dict)
 
     def to_command_list(self) -> List[str]:
         assert self.context is not None, "SimSetting.context is None"
