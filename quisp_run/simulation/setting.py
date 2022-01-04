@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 from typing import List, Optional, TYPE_CHECKING, Any, Dict
 from quisp_run.parameter_registry.parameter import ParameterKind
 from quisp_run.utils import replace_path_placeholder
@@ -18,7 +17,7 @@ class SimSetting:
     # config_ini_file: str
     # connection_type: str
     context: "Optional[SimContext]" = None
-    fields: Dict[str, Any] = field(default_factory=dict)
+    fields: Dict[str, Any] = dict()
 
     def __init__(self, context: "Optional[SimContext]", fields: dict):
         self.context = context
@@ -63,16 +62,6 @@ class SimSetting:
             elif param_def.kind == ParameterKind.PARAM:
                 config_str += "**.{}={}\n".format(param_def.param_key, self.fields[key])
 
-        # traffic_pattern_index: int = 2
-        # num_purification: int = 1
-        # lone_initiator_addr: int = 0
-        # link_tomography_enabled: bool = False
-        # purification_type: str = "1001"
-        # config_str += "**.app.TrafficPattern={}\n".format(traffic_pattern_index)
-        # config_str += "**.app.LoneInitiatorAddress={}\n".format(lone_initiator_addr)
-        # config_str += "**.qrsa.hm.link_tomography={}\n".format(str(link_tomography_enabled).lower())
-        # config_str += "**.qrsa.hm.initial_purification={}\n".format(num_purification)
-        # config_str += "**.qrsa.hm.Purification_type={}\n".format(purification_type)
         return config_str
 
     @property
@@ -101,7 +90,7 @@ class SimSetting:
                     s += f.replace("num_", "")[:4] + "_" + str(self.fields[f]) + "-"
                 else:
                     s += f + "_" + str(self.fields[f]) + "-"
-        return s[:-2]
+        return s[:-1]
 
     def __gt__(self, other):
         return str(self) > str(other)

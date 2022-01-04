@@ -76,7 +76,7 @@ class Executor:
         return Result(
             setting=self.setting,
             sim_name=self.sim_name,
-            num_buf=self.setting.fields["num_buf"],
+            params=self.setting.fields,
             num_total_events=self.num_events,
             final_events_per_sec=self.ev_per_sec,
             real_time_str=self.real_time_str,
