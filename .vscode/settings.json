@@ -1,8 +1,10 @@
 {
     "python.formatting.provider": "black",
     "python.testing.pytestArgs": [
-        "quisp_run"
+        "quisp_run",
+        "-s"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "python.analysis.diagnosticMode": "workspace"
 }
