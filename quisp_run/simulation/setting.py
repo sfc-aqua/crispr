@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, TYPE_CHECKING, Any, Dict
+from quisp_run.parameter_registry.parameter import ParameterKind
 from quisp_run.utils import replace_path_placeholder
+from quisp_run.parameter_registry import registry
 import os
 
 if TYPE_CHECKING:
@@ -29,7 +31,7 @@ class SimSetting:
             self.context.exe_path,
             "-u",
             self.context.ui,
-            replace_path_placeholder(self.config_ini_file),
+            replace_path_placeholder(self.fields["config_ini_file"]),
             "-c",
             self.sim_name,
             "-n",
@@ -38,17 +40,28 @@ class SimSetting:
         return cmd
 
     def generate_config(self, result_root_dir: str) -> str:
+        # built in configs
         network_name = "{}_network".format(self.fields["network_type"])
         config_str = ""
         config_str += "network=topology.{}\n".format(network_name)
-        config_str += "**.buffers={}\n".format(self.fields["num_buf"])
-        config_str += '{}.connectionType="{}"\n'.format(
-            network_name, self.fields["connection_type"]
-        )
-        config_str += "{}.numNodes={}\n".format(network_name, self.fields["num_node"])
         config_str += '**.tomography_output_filename="{}"\n'.format(
             os.path.join(result_root_dir, "results", self.sim_name)
         )
+
+        # dynamic parameters
+        for key in self.fields:
+            param_def = registry.find_by_name(key)
+            if param_def.kind == ParameterKind.NETWORK_PARAM:
+                if param_def.is_number():
+                    config_str += "{}.{}={}\n".format(
+                        network_name, param_def.param_key, self.fields[key]
+                    )
+                else:
+                    config_str += '{}.{}="{}"\n'.format(
+                        network_name, param_def.param_key, self.fields[key]
+                    )
+            elif param_def.kind == ParameterKind.PARAM:
+                config_str += "**.{}={}\n".format(param_def.param_key, self.fields[key])
 
         traffic_pattern_index: int = 2
         num_purification: int = 1

@@ -13,8 +13,10 @@ from quisp_run.utils import error_console
 
 
 class ParameterKind(Enum):
-    FIXED = 1
-    SIM_ARG = 2
+    META = 1  # meta data, not used in simulation
+    BUILT_IN = 2  # built-in parameter, network_type, etc.
+    NETWORK_PARAM = 3  # {network_name}.{param_name} = {param_value}
+    PARAM = 4
 
 
 T = TypeVar("T")
@@ -29,6 +31,7 @@ class Parameter(Generic[T]):
     default_value: Optional[T] = None
     default_values: Optional[List[T]] = None
     options: Optional[List[T]] = None
+    param_key: str = ""
 
     @property
     def required_to_fill(self) -> bool:
@@ -69,3 +72,6 @@ class Parameter(Generic[T]):
             isinstance(value, list)
             return isinstance(value, list) and all(isinstance(v, t) for v in value)
         raise RuntimeError(f"Parameter error: {self}")
+
+    def is_number(self) -> bool:
+        return self.__orig_class__.__args__[0] is int  # type: ignore

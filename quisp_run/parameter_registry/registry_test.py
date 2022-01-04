@@ -6,7 +6,7 @@ class TestParameter:
         p = Parameter[str](
             singular="config_ini_file",
             plural=None,
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.BUILT_IN,
             default_value="config.ini",
             required=True,
         )
@@ -19,7 +19,7 @@ class TestParameter:
         p = Parameter[int](
             singular="num_buf",
             plural="num_bufs",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.PARAM,
             default_values=[5],
             required=True,
         )
@@ -32,7 +32,7 @@ class TestParameter:
         p = Parameter[int](
             singular="num_buf",
             plural="num_bufs",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.NETWORK_PARAM,
             default_values=[5],
             required=True,
         )
@@ -49,7 +49,7 @@ def test_registry():
         Parameter[str](
             singular="title",
             plural=None,
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.META,
             default_value=None,
             required=True,
         )
@@ -81,7 +81,7 @@ def init_registry() -> ParameterRegistry:
         Parameter(
             singular="num_buf",
             plural="num_bufs",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.PARAM,
             default_value=[],
             required=True,
         )
@@ -90,7 +90,7 @@ def init_registry() -> ParameterRegistry:
         Parameter[int](
             singular="num_node",
             plural="num_nodes",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.NETWORK_PARAM,
             default_values=[5],
             required=True,
         )
@@ -99,7 +99,7 @@ def init_registry() -> ParameterRegistry:
         Parameter[str](
             singular="network_type",
             plural="network_types",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.BUILT_IN,
             default_value="linear",
             required=True,
             options=["linear"],
@@ -109,7 +109,7 @@ def init_registry() -> ParameterRegistry:
         Parameter[str](
             singular="connection_type",
             plural="connection_types",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.NETWORK_PARAM,
             default_value=None,
             required=True,
             options=["MIM", "MM"],
@@ -119,7 +119,7 @@ def init_registry() -> ParameterRegistry:
         Parameter[str](
             singular="config_ini_file",
             plural=None,
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.BUILT_IN,
             default_value="",
             required=True,
         )

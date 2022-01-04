@@ -69,7 +69,7 @@ class SimPlan:
         config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
         with open(config_file_path, "a") as f:
             for setting in self.settings:
-                setting.config_ini_file = config_file_path
+                setting.fields["config_ini_file"] = config_file_path
                 config_str = setting.generate_config(self.result_dir)
                 f.write(f"[Config {setting.sim_name}]\n")
                 f.write(config_str)
@@ -79,7 +79,7 @@ class SimPlan:
         self.result_dir = result_dir
         config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
         for setting in self.settings:
-            setting.config_ini_file = config_file_path
+            setting.fields["config_ini_file"] = config_file_path
 
     def get_result_dir_name(self) -> str:
         return (
@@ -92,4 +92,4 @@ class SimPlan:
         self.result_dir = state.result_dir
         config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
         for setting in self.settings:
-            setting.config_ini_file = config_file_path
+            setting.fields["config_ini_file"] = config_file_path

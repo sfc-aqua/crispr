@@ -38,6 +38,12 @@ class ParameterRegistry:
                 return p.singular
         raise RuntimeError(f"{singular_or_plural_name} is not registered")
 
+    def find_by_name(self, name: str) -> Parameter:
+        for p in self.parameters:
+            if name == p.singular:
+                return p
+        raise RuntimeError("Parameter {name} is not registered")
+
 
 registry: ParameterRegistry = ParameterRegistry()
 
@@ -49,25 +55,27 @@ def init_registry():
         Parameter(
             singular="num_buf",
             plural="num_bufs",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.PARAM,
             default_value=[],
             required=True,
+            param_key="buffers",
         )
     )
     registry.register(
         Parameter[int](
             singular="num_node",
             plural="num_nodes",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.NETWORK_PARAM,
             default_values=[5],
             required=True,
+            param_key="numNodes",
         )
     )
     registry.register(
         Parameter[str](
             singular="network_type",
             plural="network_types",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.BUILT_IN,
             default_value="linear",
             required=True,
             options=["linear"],
@@ -77,17 +85,18 @@ def init_registry():
         Parameter[str](
             singular="connection_type",
             plural="connection_types",
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.NETWORK_PARAM,
             default_value=None,
             required=True,
             options=["MIM", "MM"],
+            param_key="connectionType",
         )
     )
     registry.register(
         Parameter[str](
             singular="config_ini_file",
             plural=None,
-            kind=ParameterKind.FIXED,
+            kind=ParameterKind.BUILT_IN,
             default_value="${QUISP_RUN_ROOT_DIR}/config/omnetpp.ini",
             required=True,
         )
