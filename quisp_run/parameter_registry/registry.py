@@ -101,6 +101,56 @@ def init_registry():
             required=True,
         )
     )
+    registry.register(
+        Parameter[int](
+            singular="traffic_pattern_index",
+            plural="traffic_pattern_indices",
+            kind=ParameterKind.PARAM,
+            default_values=[0],
+            required=True,
+            param_key="app.TrafficPattern",
+        )
+    )
+    registry.register(
+        Parameter[int](
+            singular="lone_initiator_addr",
+            plural="lone_initiator_addrs",
+            kind=ParameterKind.PARAM,
+            default_values=[0],
+            required=True,
+            param_key="app.LoneInitiatorAddress",
+        )
+    )
+    registry.register(
+        Parameter[str](
+            singular="link_tomography_enabled",
+            plural="link_tomography_enabled_list",
+            kind=ParameterKind.PARAM,
+            default_values=["false"],
+            required=True,
+            param_key="qrsa.hm.link_tomography",
+        )
+    )
+    registry.register(
+        Parameter[int](
+            singular="num_purification_iteration",
+            plural="num_purification_iterations",
+            kind=ParameterKind.PARAM,
+            default_values=[0],
+            required=True,
+            param_key="qrsa.hm.initial_purification",
+        )
+    )
+    registry.register(
+        Parameter[int](
+            singular="purification_type",
+            plural="purification_types",
+            kind=ParameterKind.PARAM,
+            default_values=[1001],
+            required=True,
+            param_key="qrsa.hm.Purification_type",
+        )
+    )
 
 
 init_registry()

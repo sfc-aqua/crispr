@@ -63,16 +63,16 @@ class SimSetting:
             elif param_def.kind == ParameterKind.PARAM:
                 config_str += "**.{}={}\n".format(param_def.param_key, self.fields[key])
 
-        traffic_pattern_index: int = 2
-        num_purification: int = 1
-        lone_initiator_addr: int = 0
-        link_tomography_enabled: bool = False
-        purification_type: str = "1001"
-        config_str += "**.app.TrafficPattern={}\n".format(traffic_pattern_index)
-        config_str += "**.app.LoneInitiatorAddress={}\n".format(lone_initiator_addr)
-        config_str += "**.qrsa.hm.link_tomography={}\n".format(str(link_tomography_enabled).lower())
-        config_str += "**.qrsa.hm.initial_purification={}\n".format(num_purification)
-        config_str += "**.qrsa.hm.Purification_type={}\n".format(purification_type)
+        # traffic_pattern_index: int = 2
+        # num_purification: int = 1
+        # lone_initiator_addr: int = 0
+        # link_tomography_enabled: bool = False
+        # purification_type: str = "1001"
+        # config_str += "**.app.TrafficPattern={}\n".format(traffic_pattern_index)
+        # config_str += "**.app.LoneInitiatorAddress={}\n".format(lone_initiator_addr)
+        # config_str += "**.qrsa.hm.link_tomography={}\n".format(str(link_tomography_enabled).lower())
+        # config_str += "**.qrsa.hm.initial_purification={}\n".format(num_purification)
+        # config_str += "**.qrsa.hm.Purification_type={}\n".format(purification_type)
         return config_str
 
     @property
@@ -91,7 +91,16 @@ class SimSetting:
         for f in self.fields:
             if f == "config_ini_file":
                 continue
-            s += f + "_" + str(self.fields[f]) + "--"
+            s += f + "_" + str(self.fields[f]) + "-"
+        if len(s) > 127:
+            s = ""
+            for f in self.fields:
+                if f == "config_ini_file":
+                    continue
+                if len(f) > 6:
+                    s += f.replace("num_", "")[:4] + "_" + str(self.fields[f]) + "-"
+                else:
+                    s += f + "_" + str(self.fields[f]) + "-"
         return s[:-2]
 
     def __gt__(self, other):
