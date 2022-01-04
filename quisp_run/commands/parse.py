@@ -1,5 +1,6 @@
 import click
 from quisp_run import config
+from quisp_run.parameter_registry.registry import ParameterRegistry, init_registry
 from quisp_run.utils import console
 from rich.prompt import Confirm
 
@@ -8,7 +9,8 @@ from rich.prompt import Confirm
 def parse_config():
     with open("simulation.plan", "rt") as f:
         source = f.read()
-        sim_plan = config.parse_config(source)
+        registry = init_registry(ParameterRegistry())
+        sim_plan = config.parse_config(source, registry)
         settings = sim_plan.populate()
         console.print(f"[green]{len(settings)} simulation settings populated.")
         console.print("\n[green]First Simulation Plan:")

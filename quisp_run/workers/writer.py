@@ -7,10 +7,11 @@ class Writer:
     """Simulation log writer"""
 
     context: SimContext
-    results: Dict = dict()
+    results: Dict
 
     def __init__(self, ctx: SimContext):
         self.context = ctx
+        self.results = {}
 
     async def run(self):
         while True:

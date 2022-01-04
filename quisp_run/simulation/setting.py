@@ -11,15 +11,10 @@ if TYPE_CHECKING:
 class SimSetting:
     """One Simulation Setting."""
 
-    # num_buf: int
-    # num_node: int
-    # network_type: str
-    # config_ini_file: str
-    # connection_type: str
-    context: "Optional[SimContext]" = None
-    fields: Dict[str, Any] = dict()
+    context: "Optional[SimContext]"
+    fields: Dict[str, Any]
 
-    def __init__(self, context: "Optional[SimContext]", fields: dict):
+    def __init__(self, context: "Optional[SimContext]", fields: Dict[str, Any]):
         self.context = context
         self.fields = fields
 
@@ -38,7 +33,8 @@ class SimSetting:
         ]
         return cmd
 
-    def generate_config(self, result_root_dir: str) -> str:
+    def generate_config(self, result_root_dir: str, registry: registry.ParameterRegistry) -> str:
+
         # built in configs
         network_name = "{}_network".format(self.fields["network_type"])
         config_str = ""
@@ -70,7 +66,7 @@ class SimSetting:
 
     @property
     def sim_name(self) -> str:
-        return self.__str__()
+        return self.__str__().replace(" ", "_")
 
     def to_command_str(self) -> str:
         return " ".join(self.to_command_list())
@@ -80,16 +76,20 @@ class SimSetting:
         for f in self.fields:
             if f == "config_ini_file":
                 continue
-            s += f + "_" + str(self.fields[f]) + "-"
+            if f == "title":
+                continue
+            s += f + str(self.fields[f]) + "-"
         if len(s) > 127:
             s = ""
             for f in self.fields:
                 if f == "config_ini_file":
                     continue
+                if f == "title":
+                    continue
                 if len(f) > 6:
-                    s += f.replace("num_", "")[:4] + "_" + str(self.fields[f]) + "-"
+                    s += f.replace("num_", "")[:4] + str(self.fields[f]) + "-"
                 else:
-                    s += f + "_" + str(self.fields[f]) + "-"
+                    s += f + str(self.fields[f]) + "-"
         return s[:-1]
 
     def __gt__(self, other):

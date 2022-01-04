@@ -4,9 +4,14 @@ from .parameter import Parameter, ParameterKind
 
 
 class ParameterRegistry:
-    parameters: List[Parameter] = []
+    parameters: List[Parameter]
+
+    def __init__(self) -> None:
+        self.parameters = []
 
     def register(self, parameter: Parameter):
+        if [p for p in self.parameters if p == parameter]:
+            return
         self.parameters.append(parameter)
 
     def create_default_config_vars(self) -> Dict[str, Any]:
@@ -45,12 +50,16 @@ class ParameterRegistry:
         raise RuntimeError("Parameter {name} is not registered")
 
 
-registry: ParameterRegistry = ParameterRegistry()
-
-
-def init_registry():
-    global registry
-    registry = ParameterRegistry()
+def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
+    registry.register(
+        Parameter(
+            singular="title",
+            plural=None,
+            kind=ParameterKind.META,
+            default_value="",
+            required=True,
+        )
+    )
     registry.register(
         Parameter(
             singular="num_buf",
@@ -151,6 +160,4 @@ def init_registry():
             param_key="qrsa.hm.Purification_type",
         )
     )
-
-
-init_registry()
+    return registry

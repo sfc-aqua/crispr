@@ -1,6 +1,6 @@
 from quisp_run.simulation import SimPlan
 from quisp_run.utils import console, error_console
-from quisp_run.parameter_registry import registry
+from quisp_run.parameter_registry import ParameterRegistry
 
 
 def define_param(*args, **kwargs):
@@ -20,7 +20,7 @@ CONFIG_EVAL_ENV_GLOBALS = {
 }
 
 
-def parse_config(plan_source: str) -> SimPlan:
+def parse_config(plan_source: str, registry: ParameterRegistry) -> SimPlan:
     console.print("[yellow]Parsing simulation plan...")
     config_vars = registry.create_default_config_vars()
     try:
@@ -35,5 +35,5 @@ def parse_config(plan_source: str) -> SimPlan:
         error_console.print_exception(max_frames=0)
         config_vars["error"] = e
         exit(1)
-    plan = SimPlan(config_vars)
+    plan = SimPlan(config_vars, registry)
     return plan

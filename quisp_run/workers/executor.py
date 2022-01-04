@@ -4,6 +4,7 @@ from enum import Enum
 from rich.progress import TaskID
 from rich.console import Console
 from quisp_run.simulation import Result, SimContext, SimSetting
+from quisp_run.utils import parse_time
 
 
 class WorkerStatus(Enum):
@@ -22,11 +23,11 @@ class Executor:
     id: int
     task_id: Optional[TaskID]
     context: SimContext
-    setting: Optional[SimSetting] = None
-    user_time_str: str = ""
-    real_time_str: str = ""
-    sys_time_str: str = ""
-    error_messages: str = ""
+    setting: Optional[SimSetting]
+    user_time: float
+    real_time: float
+    sys_time: float
+    error_messages: str
     console = Console()
 
     # these fields are refered by job_diplay, so you need to aquire lock before writing to it.
@@ -47,6 +48,10 @@ class Executor:
         self.sim_changed = False
         self.status = WorkerStatus.WAINTING_FOR_TASK
         self.context = context
+        self.user_time = -1.0
+        self.sys_time = -1.0
+        self.real_time = -1.0
+        self.setting = None
 
     async def run(self):
         """main coroutine of the worker. fetch a sim setting and run it."""
@@ -79,9 +84,9 @@ class Executor:
             params=self.setting.fields,
             num_total_events=self.num_events,
             final_events_per_sec=self.ev_per_sec,
-            real_time_str=self.real_time_str,
-            user_time_str=self.user_time_str,
-            sys_time_str=self.sys_time_str,
+            real_time=self.real_time,
+            user_time=self.user_time,
+            sys_time=self.sys_time,
             error_message=self.error_messages,
         )
 
@@ -96,9 +101,9 @@ class Executor:
             self.num_events = 0
             self.ev_per_sec = 0
             self.sim_changed = True
-            self.sys_time_str = ""
-            self.user_time_str = ""
-            self.real_time_str = ""
+            self.sys_time = -1.0
+            self.user_time = -1.0
+            self.real_time = -1.0
             self.error_messages = ""
             self.status = WorkerStatus.STARTING
 
@@ -155,11 +160,11 @@ class Executor:
                 buf = (await proc.stderr.readline()).decode().strip()
                 # parse time command output
                 if buf.startswith("real"):
-                    self.real_time_str = buf.split("\t")[1]
+                    self.real_time = parse_time(buf.split("\t")[1])
                 elif buf.startswith("sys"):
-                    self.sys_time_str = buf.split("\t")[1]
+                    self.sys_time = parse_time(buf.split("\t")[1])
                 elif buf.startswith("user"):
-                    self.user_time_str = buf.split("\t")[1]
+                    self.user_time = parse_time(buf.split("\t")[1])
                 elif buf:
                     self.context.log("[red]Err: ", buf)
                     self.error_messages += buf + "\n"

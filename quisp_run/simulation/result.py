@@ -8,9 +8,9 @@ class Result:
     num_total_events: int
     final_events_per_sec: float
     setting: Optional[SimSetting] = None
-    user_time_str: str = ""
-    sys_time_str: str = ""
-    real_time_str: str = ""
+    user_time: float = -1.0
+    sys_time: float = -1.0
+    real_time: float = -1.0
     error_message: str = ""
     sim_name: str = ""
     params: Dict[str, Any] = field(default_factory=dict)
@@ -19,9 +19,9 @@ class Result:
         return {
             "num_total_events": self.num_total_events,
             "final_events_per_sec": self.final_events_per_sec,
-            "sys": self.sys_time_str,
-            "user": self.user_time_str,
-            "real": self.real_time_str,
+            "sys": self.sys_time,
+            "user": self.user_time,
+            "real": self.real_time,
             "error": self.error_message,
             "sim_name": self.sim_name,
             **self.params,
@@ -34,9 +34,9 @@ class Result:
         return Result(
             num_total_events=d["num_total_events"],
             final_events_per_sec=d["final_events_per_sec"],
-            user_time_str=d["user"],
-            sys_time_str=d["sys"],
-            real_time_str=d["real"],
+            user_time=d["user"],
+            sys_time=d["sys"],
+            real_time=d["real"],
             error_message=d["error"],
             sim_name=d["sim_name"],
             params=params,

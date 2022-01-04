@@ -1,46 +1,5 @@
 from .registry import ParameterRegistry, ParameterKind, Parameter
-
-
-class TestParameter:
-    def test_parameter_default_value_singular(self):
-        p = Parameter[str](
-            singular="config_ini_file",
-            plural=None,
-            kind=ParameterKind.BUILT_IN,
-            default_value="config.ini",
-            required=True,
-        )
-        assert p.validate()
-        k, v = p.default_key_value()
-        assert k == "config_ini_file"
-        assert v == "config.ini"
-
-    def test_parameter_default_value_both_singular_n_plural(self):
-        p = Parameter[int](
-            singular="num_buf",
-            plural="num_bufs",
-            kind=ParameterKind.PARAM,
-            default_values=[5],
-            required=True,
-        )
-        assert p.validate()
-        k, v = p.default_key_value()
-        assert k == "num_bufs"
-        assert v == [5]
-
-    def test_parameter_type(self):
-        p = Parameter[int](
-            singular="num_buf",
-            plural="num_bufs",
-            kind=ParameterKind.NETWORK_PARAM,
-            default_values=[5],
-            required=True,
-        )
-        assert p.validate_type("num_buf", "hoge") == False
-        assert p.validate_type("num_buf", 123) == True
-        assert p.validate_type("num_buf", [123]) == False
-        assert p.validate_type("num_bufs", [123]) == True
-        assert p.validate_type("num_bufs", [123, "hoge"]) == False
+import pytest
 
 
 def test_registry():
@@ -73,6 +32,32 @@ def test_validate_config_vars():
     }
     is_valid = r.validate_config_vars(vars)
     assert is_valid
+
+
+def test_cannot_register_same_parameter():
+    r = ParameterRegistry()
+    assert len(r.parameters) == 0
+    print(r.parameters)
+    r.register(
+        Parameter(
+            singular="num_buf",
+            plural="num_bufs",
+            kind=ParameterKind.PARAM,
+            default_value=[],
+            required=True,
+        )
+    )
+    assert len(r.parameters) == 1
+    r.register(
+        Parameter(
+            singular="num_buf",
+            plural="num_bufs",
+            kind=ParameterKind.PARAM,
+            default_value=[],
+            required=True,
+        )
+    )
+    assert len(r.parameters) == 1
 
 
 def init_registry() -> ParameterRegistry:

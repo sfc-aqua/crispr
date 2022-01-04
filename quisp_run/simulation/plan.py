@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 import itertools, os, time, shutil
-from quisp_run.parameter_registry import registry
+from quisp_run.parameter_registry import ParameterRegistry
 from quisp_run.simulation import SimSetting
 from quisp_run.state import State
 from quisp_run.constants import (
@@ -12,12 +12,17 @@ from quisp_run.constants import (
 
 class SimPlan:
     config_vars: Dict[str, Any]
-    settings: List[SimSetting] = []
-    result_dir: str = ""
-    ned_path: str = ""
+    settings: List[SimSetting]
+    result_dir: str
+    ned_path: str
+    registry: ParameterRegistry
 
-    def __init__(self, config_vars: Dict[str, Any]):
+    def __init__(self, config_vars: Dict[str, Any], registry: ParameterRegistry):
         self.config_vars = config_vars
+        self.settings = []
+        self.result_dir = ""
+        self.ned_path = ""
+        self.registry = registry
 
     def __getitem__(self, key):
         return self.config_vars[key]
@@ -26,24 +31,24 @@ class SimPlan:
         return self.config_vars.get("error") is not None
 
     def populate(self) -> List[SimSetting]:
-        def collect_parameters(vars: Dict[str, Any]):
+        def collect_parameters(variables: Dict[str, Any]):
             keys = []
             vals = []
-            for p in registry.parameters:
+            for p in self.registry.parameters:
                 if p.plural is not None:
-                    if p.plural in vars:
-                        vals.append(vars[p.plural])
+                    if p.plural in variables:
+                        vals.append(variables[p.plural])
                         keys.append(p.plural)
-                    elif p.singular is not None and p.singular in vars:
-                        vals.append([vars[p.singular]])
+                    elif p.singular is not None and p.singular in variables:
+                        vals.append([variables[p.singular]])
                         keys.append(p.singular)
-                elif p.singular is not None and p.singular in vars:
-                    vals.append([vars[p.singular]])
+                elif p.singular is not None and p.singular in variables:
+                    vals.append([variables[p.singular]])
                     keys.append(p.singular)
             return keys, vals
 
         keys, vals = collect_parameters(self.config_vars)
-        setting_keys = [registry.get_singular_name(k) for k in keys]
+        setting_keys = [self.registry.get_singular_name(k) for k in keys]
         settings = []
         for params in itertools.product(*vals):
             assert len(params) == len(keys)
@@ -70,7 +75,7 @@ class SimPlan:
         with open(config_file_path, "a") as f:
             for setting in self.settings:
                 setting.fields["config_ini_file"] = config_file_path
-                config_str = setting.generate_config(self.result_dir)
+                config_str = setting.generate_config(self.result_dir, self.registry)
                 f.write(f"[Config {setting.sim_name}]\n")
                 f.write(config_str)
                 f.write("\n\n")

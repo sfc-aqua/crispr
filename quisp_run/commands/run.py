@@ -1,13 +1,13 @@
 import os, asyncio, shutil
 import click
-from typing import List, Optional
 from rich.prompt import Confirm
-from quisp_run.simulation import SimContext, SimSetting
+from quisp_run.simulation import SimContext
 from quisp_run.workers import Executor, Writer, job_display
 from quisp_run.config import parse_config
 
 from quisp_run.utils import console, error_console
 from quisp_run.state import State
+from quisp_run.parameter_registry import ParameterRegistry, init_registry
 
 
 @click.command()
@@ -80,12 +80,13 @@ def start_simulations(
 ):
     console.print(f"QuISP Working dir: {state.quisp_workdir}")
     console.print(f"Simulation plan: {state.simulation_plan_file_path}")
+    registry = init_registry(ParameterRegistry())
     plan = None
 
     # populate simulation settings from simulation plan
     with open(state.simulation_plan_file_path, "r") as f:
         source = f.read()
-        plan = parse_config(source)
+        plan = parse_config(source, registry)
         if state.loaded:
             plan.restore(state)
         plan.populate()
@@ -107,7 +108,9 @@ def start_simulations(
 
     async def run_workers():
         # setup workers
-        sim_context = SimContext(exe_path, ui, state.ned_path, state.quisp_workdir, pool_size, plan)
+        sim_context = SimContext(
+            exe_path, ui, state.ned_path, state.quisp_workdir, pool_size, plan, registry
+        )
         executors = [Executor(i, sim_context) for i in range(pool_size)]
         worker_tasks = [asyncio.create_task(worker.run()) for worker in executors]
         display_task = asyncio.create_task(job_display(executors, sim_context, console))

@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Optional, List, Any
 from .setting import SimSetting
 from .result import Result
+from quisp_run.parameter_registry import ParameterRegistry
 
 if TYPE_CHECKING:
     from .plan import SimPlan
@@ -26,9 +27,10 @@ class SimContext:
     pool_size: int
     simulations: asyncio.Queue[Optional[SimSetting]]
     results: asyncio.Queue[Optional[Result]]
-    last_results: Optional[Any] = None
+    last_results: Optional[Any]
     done: asyncio.Queue[None]
     live: Optional[Live]
+    registry: ParameterRegistry
 
     def __init__(
         self,
@@ -38,12 +40,15 @@ class SimContext:
         working_dir: str,
         pool_size: int,
         plan: "SimPlan",
+        registry: ParameterRegistry,
     ):
+        self.registry = registry
         self.exe_path = exe_path
         self.ui = ui
         self.ned_path = ned_path
         self.working_dir = working_dir
         self.pool_size = pool_size
+        self.last_results = []
         num_simulations = len(plan.settings)
         self.simulations = asyncio.Queue(num_simulations + pool_size)
         for setting in plan.settings:
