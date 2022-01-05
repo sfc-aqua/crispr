@@ -5,6 +5,7 @@ from quisp_run.simulation import SimSetting
 from quisp_run.state import State
 from quisp_run.constants import (
     QUISP_RUN_ROOT_DIR,
+    QUISP_TEMPALTE_IPYNB,
     QUISP_TEMPALTE_OMNETPP_INI,
     QUISP_TEMPALTE_TOPOLOGY_DIR,
 )
@@ -62,6 +63,7 @@ class SimPlan:
         os.makedirs(result_dir)
         self.result_dir = result_dir
         shutil.copy(QUISP_TEMPALTE_OMNETPP_INI, os.path.join(result_dir, "omnetpp.ini"))
+        shutil.copy(QUISP_TEMPALTE_IPYNB, os.path.join(result_dir, "analysis.ipynb"))
         topology_path = os.path.join(result_dir, "topology")
         shutil.copytree(QUISP_TEMPALTE_TOPOLOGY_DIR, topology_path)
         self.ned_path = topology_path
