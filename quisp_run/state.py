@@ -22,7 +22,9 @@ class State:
     quisp_root: str
     quisp_workdir: str
     ned_path: str
-    loaded: bool = False
+    loaded: bool
+    num_simulations: int
+    num_finished: int
 
     def __init__(self):
         self.last_run = datetime.now()
@@ -31,6 +33,9 @@ class State:
         self.quisp_root = ""
         self.quisp_workdir = ""
         self.ned_path = ""
+        self.loaded = False
+        self.num_simulations = 0
+        self.num_finished = 0
 
     def save(self):
         if not os.path.isfile(STATE_FILE_PATH):
@@ -59,5 +64,7 @@ class State:
         state.quisp_root = data["quisp_root"]
         state.quisp_workdir = data["quisp_workdir"]
         state.ned_path = data["ned_path"]
+        state.num_simulations = data["num_simulations"]
+        state.num_finished = data["num_finished"]
         state.loaded = True
         return state

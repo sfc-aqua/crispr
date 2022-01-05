@@ -106,20 +106,27 @@ def start_simulations(
     else:
         plan.set_result_dir(state.result_dir)
 
+    ctx = None
+
     async def run_workers():
         # setup workers
         sim_context = SimContext(
             exe_path, ui, state.ned_path, state.quisp_workdir, pool_size, plan, registry
         )
+        state.num_simulations = sim_context.num_simulations
+        ctx = sim_context
         executors = [Executor(i, sim_context) for i in range(pool_size)]
         worker_tasks = [asyncio.create_task(worker.run()) for worker in executors]
         display_task = asyncio.create_task(job_display(executors, sim_context, console))
         writer = Writer(sim_context)
         writer_task = asyncio.create_task(writer.run())
+        # run workers
         await asyncio.gather(display_task, writer_task, *worker_tasks)
 
     try:
-        # run workers
         asyncio.run(run_workers())
     finally:
+        if ctx:
+            state.num_finished = ctx.num_finished
+            state.num_simulations = ctx.num_simulations
         state.save()

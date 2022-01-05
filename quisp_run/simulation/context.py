@@ -31,6 +31,7 @@ class SimContext:
     done: asyncio.Queue[None]
     live: Optional[Live]
     registry: ParameterRegistry
+    num_simulations: int
 
     def __init__(
         self,
@@ -50,6 +51,7 @@ class SimContext:
         self.pool_size = pool_size
         self.last_results = []
         num_simulations = len(plan.settings)
+        self.num_simulations = num_simulations
         self.simulations = asyncio.Queue(num_simulations + pool_size)
         for setting in plan.settings:
             self.simulations.put_nowait(setting)
@@ -64,6 +66,10 @@ class SimContext:
         if os.path.isfile(pickle_file_path):
             with open(pickle_file_path, "rb") as f:
                 self.last_results = pickle.load(f)
+
+    @property
+    def num_finished(self):
+        return self.done.qsize()
 
     def find_last_run(self, sim_name: str) -> Optional[Result]:
         if self.last_results is None:
