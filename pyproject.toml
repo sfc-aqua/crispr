@@ -24,6 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 quisp_run = "quisp_run.main:main"
+quisp = "quisp_run.main:main"
 
 [tool.poetry.build]
 generate-setup-file = false
