@@ -11,7 +11,7 @@ class Writer:
 
     def __init__(self, ctx: SimContext):
         self.context = ctx
-        self.results = {}
+        self.results = {"__params__": ctx.param_keys}
 
     async def run(self):
         while True:

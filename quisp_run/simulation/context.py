@@ -32,6 +32,7 @@ class SimContext:
     live: Optional[Live]
     registry: ParameterRegistry
     num_simulations: int
+    param_keys: List[str]
 
     def __init__(
         self,
@@ -53,6 +54,8 @@ class SimContext:
         num_simulations = len(plan.settings)
         self.num_simulations = num_simulations
         self.simulations = asyncio.Queue(num_simulations + pool_size)
+        assert len(plan.settings) > 0, "No simulation settings found in plan."
+        self.param_keys = list(plan.settings[0].fields.keys())
         for setting in plan.settings:
             self.simulations.put_nowait(setting)
             setting.context = self
