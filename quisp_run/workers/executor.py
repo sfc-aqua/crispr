@@ -4,7 +4,7 @@ from enum import Enum
 from rich.progress import TaskID
 from rich.console import Console
 from quisp_run.simulation import Result, SimContext, SimSetting
-from quisp_run.utils import parse_time
+from quisp_run.utils import parse_time, logger
 
 
 class WorkerStatus(Enum):
@@ -108,6 +108,7 @@ class Executor:
             self.status = WorkerStatus.STARTING
 
     async def run_quisp(self, cmd: List[str]):
+        logger.debug("[Executor] run_quisp: %s", cmd)
         proc = await asyncio.create_subprocess_shell(
             "time " + " ".join(cmd),
             stdout=asyncio.subprocess.PIPE,

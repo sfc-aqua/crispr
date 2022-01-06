@@ -3,6 +3,7 @@ import itertools, os, time, shutil
 from quisp_run.parameter_registry import ParameterRegistry
 from quisp_run.simulation import SimSetting
 from quisp_run.state import State
+from quisp_run.utils import logger
 from quisp_run.constants import (
     QUISP_RUN_ROOT_DIR,
     QUISP_TEMPALTE_IPYNB,
@@ -57,11 +58,14 @@ class SimPlan:
         self.settings = settings
         return settings
 
-    def create_result_dir(self) -> str:
-        root = os.path.join(QUISP_RUN_ROOT_DIR, "results")
-        result_dir = os.path.join(root, self.get_result_dir_name())
+    def create_result_dir(self, results_root_dir: str) -> str:
+        logger.debug("Results root dir: %s", results_root_dir)
+
+        result_dir = os.path.join(results_root_dir, self.get_result_dir_name())
         os.makedirs(result_dir)
         self.result_dir = result_dir
+
+        logger.debug("Creating result dir: %s", self.result_dir)
         shutil.copy(QUISP_TEMPALTE_OMNETPP_INI, os.path.join(result_dir, "omnetpp.ini"))
         shutil.copy(QUISP_TEMPALTE_IPYNB, os.path.join(result_dir, "analysis.ipynb"))
         topology_path = os.path.join(result_dir, "topology")
@@ -73,6 +77,7 @@ class SimPlan:
         assert (
             self.result_dir != ""
         ), "SimPlan.result_dir is empty, call SimPlan.create_result_dir() first"
+        logger.debug("Writing config to %s", self.result_dir)
         config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
         with open(config_file_path, "a") as f:
             for setting in self.settings:

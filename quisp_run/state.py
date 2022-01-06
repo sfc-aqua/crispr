@@ -16,6 +16,7 @@ def encode(obj):
 
 class State:
     last_run: datetime
+    results_root_dir: str
     result_dir: str
     current_working_dir: str
     simulation_plan_file_path: str
@@ -28,6 +29,7 @@ class State:
 
     def __init__(self):
         self.last_run = datetime.now()
+        self.results_root_dir = ""
         self.result_dir = ""
         self.simulation_plan_file_path = ""
         self.quisp_root = ""
@@ -60,6 +62,7 @@ class State:
         state = State()
         state.last_run = datetime.fromisoformat(data["last_run"])
         state.result_dir = data["result_dir"]
+        state.results_root_dir = data["results_root_dir"]
         state.simulation_plan_file_path = data["simulation_plan_file_path"]
         state.quisp_root = data["quisp_root"]
         state.quisp_workdir = data["quisp_workdir"]

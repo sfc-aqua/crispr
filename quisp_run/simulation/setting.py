@@ -1,6 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING, Any, Dict
 from quisp_run.parameter_registry.parameter import ParameterKind
-from quisp_run.utils import replace_path_placeholder
+from quisp_run.utils import replace_path_placeholder, logger
 from quisp_run.parameter_registry import registry
 import os
 
@@ -20,12 +20,14 @@ class SimSetting:
 
     def to_command_list(self) -> List[str]:
         assert self.context is not None, "SimSetting.context is None"
-
+        logger.debug(
+            f"[Executor.to_command_list] result_dir: {os.path.join(self.context.result_dir, 'omnetpp.ini')}"
+        )
         cmd = [
             self.context.exe_path,
             "-u",
             self.context.ui,
-            replace_path_placeholder(self.fields["config_ini_file"]),
+            os.path.join(self.context.result_dir, "omnetpp.ini"),
             "-c",
             self.sim_name,
             "-n",
