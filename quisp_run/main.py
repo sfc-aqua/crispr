@@ -4,7 +4,7 @@
 import click
 from typing import List
 
-from quisp_run.commands import run, plan, status
+from quisp_run import commands
 import logging
 from quisp_run.utils import logger
 
@@ -16,6 +16,7 @@ def main(debug: bool):
         logger.setLevel(level=logging.DEBUG)
 
 
-main.add_command(run)
-main.add_command(plan)
-main.add_command(status)
+main.add_command(commands.run)
+main.add_command(commands.plan)
+main.add_command(commands.status)
+main.add_command(commands.resume)
