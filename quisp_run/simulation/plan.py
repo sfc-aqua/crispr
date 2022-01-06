@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 import itertools, os, time, shutil
 from quisp_run.parameter_registry import ParameterRegistry
 from quisp_run.simulation import SimSetting
@@ -58,11 +58,13 @@ class SimPlan:
         self.settings = settings
         return settings
 
-    def create_result_dir(self, results_root_dir: str) -> str:
+    def create_result_dir(self, results_root_dir: str) -> Tuple[str, str]:
         logger.debug("Results root dir: %s", results_root_dir)
 
         result_dir = os.path.join(results_root_dir, self.get_result_dir_name())
         os.makedirs(result_dir)
+        ned_dir = os.path.join(result_dir, "ned")
+        os.makedirs(ned_dir)
         self.result_dir = result_dir
 
         logger.debug("Creating result dir: %s", self.result_dir)
@@ -71,7 +73,7 @@ class SimPlan:
         topology_path = os.path.join(result_dir, "topology")
         shutil.copytree(QUISP_TEMPALTE_TOPOLOGY_DIR, topology_path)
         self.ned_path = topology_path
-        return result_dir
+        return (result_dir, ned_dir)
 
     def write_config(self):
         assert (

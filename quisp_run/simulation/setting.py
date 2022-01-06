@@ -23,15 +23,16 @@ class SimSetting:
         logger.debug(
             f"[Executor.to_command_list] result_dir: {os.path.join(self.context.result_dir, 'omnetpp.ini')}"
         )
+        result_dir = self.context.result_dir
         cmd = [
-            self.context.exe_path,
+            os.path.join(result_dir, "quisp_bin"),
             "-u",
             self.context.ui,
-            os.path.join(self.context.result_dir, "omnetpp.ini"),
+            os.path.join(result_dir, "omnetpp.ini"),
             "-c",
             self.sim_name,
             "-n",
-            self.context.ned_path,
+            os.path.join(result_dir, "ned") + ":" + os.path.join(result_dir, "topology"),
         ]
         return cmd
 

@@ -1,4 +1,4 @@
-import asyncio, shutil
+import asyncio, shutil, glob, os
 from quisp_run.simulation import SimContext
 from quisp_run.simulation.context import OmnetppEnv
 from quisp_run.workers import Executor, Writer, job_display
@@ -34,8 +34,20 @@ def start_simulations(
         exit(1)
 
     if not state.loaded:
-        state.result_dir = plan.create_result_dir(state.results_root_dir)
+        state.result_dir, ned_dir = plan.create_result_dir(state.results_root_dir)
         plan.write_config()
+
+        # copy quisp binnary and ned files to result dir
+        ned_files = glob.glob(os.path.join(state.quisp_workdir, "**/*.ned"), recursive=True)
+        for ned_file in ned_files:
+            os.makedirs(
+                os.path.dirname(os.path.join(ned_dir, ned_file[len(state.quisp_workdir) + 1 :])),
+                exist_ok=True,
+            )
+            shutil.copy(ned_file, os.path.join(ned_dir, ned_file[len(state.quisp_workdir) + 1 :]))
+        shutil.copy(
+            os.path.join(state.quisp_workdir, exe_path), os.path.join(state.result_dir, "quisp_bin")
+        )
         state.simulation_plan_file_path = shutil.copy(
             state.simulation_plan_file_path, state.result_dir
         )
