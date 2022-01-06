@@ -143,19 +143,19 @@ class Executor:
                     if not running:
                         running = True
                         await self.set_status(WorkerStatus.RUNNING)
-                    match = re.search("Event #(\d+)", buf)
+                    match = re.search(r"Event #(\d+)", buf)
                     if match:
                         async with self.lock:
                             self.num_events = int(match.group(1))
                 if buf.startswith("Speed:"):
                     match = re.search(
-                        "ev/sec=([0-9.]+)\s+simsec/sec=([0-9.\-\+e]+)\s+ev/simsec=([0-9.\-\+e]+)",
+                        r"ev/sec=([0-9.]+)\s+simsec/sec=([0-9.\-\+e]+)\s+ev/simsec=([0-9.\-\+e]+)",
                         buf,
                     )
                     if match:
                         async with self.lock:
                             self.ev_per_sec = float(match.group(1))
-                    lines.append(re.sub("\s+", ",", buf))
+                    lines.append(re.sub(r"\s+", ",", buf))
             while len(stderr._buffer) > 0:  # type: ignore
                 buf = (await proc.stderr.readline()).decode().strip()
                 # parse time command output
