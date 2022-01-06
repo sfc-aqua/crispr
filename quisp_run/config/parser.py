@@ -35,5 +35,9 @@ def parse_config(plan_source: str, registry: ParameterRegistry) -> SimPlan:
         error_console.print_exception(max_frames=0)
         config_vars["error"] = e
         exit(1)
+
+    if not registry.validate_config_vars(config_vars):
+        error_console.print("[red]Invalid configuration")
+        exit(1)
     plan = SimPlan(config_vars, registry)
     return plan

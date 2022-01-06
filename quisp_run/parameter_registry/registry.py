@@ -12,6 +12,8 @@ class ParameterRegistry:
     def register(self, parameter: Parameter):
         if [p for p in self.parameters if p == parameter]:
             return
+        if not parameter.validate():
+            raise RuntimeError(f"Invalid parameter: {parameter}")
         self.parameters.append(parameter)
 
     def create_default_config_vars(self) -> Dict[str, Any]:
@@ -30,6 +32,16 @@ class ParameterRegistry:
                         f"[red]error: {parameter.singular or parameter.plural} is required"
                     )
                     is_valid = False
+
+                key = parameter.singular
+                if key and key in vars:
+                    if not parameter.validate_type(key, vars[key]):
+                        is_valid = False
+
+                key = parameter.plural
+                if key and key in vars:
+                    if not parameter.validate_type(key, vars[key]):
+                        is_valid = False
         return is_valid
 
     def get_singular_name(self, singular_or_plural_name: str) -> str:
@@ -52,7 +64,7 @@ class ParameterRegistry:
 
 def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
     registry.register(
-        Parameter(
+        Parameter[str](
             singular="title",
             plural=None,
             kind=ParameterKind.META,
@@ -61,11 +73,11 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
         )
     )
     registry.register(
-        Parameter(
+        Parameter[int](
             singular="num_buf",
             plural="num_bufs",
             kind=ParameterKind.PARAM,
-            default_value=[],
+            default_values=[50],
             required=True,
             param_key="buffers",
         )
@@ -131,11 +143,11 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
         )
     )
     registry.register(
-        Parameter[str](
+        Parameter[bool](
             singular="link_tomography_enabled",
             plural="link_tomography_enabled_list",
             kind=ParameterKind.PARAM,
-            default_values=["false"],
+            default_values=[False],
             required=True,
             param_key="qrsa.hm.link_tomography",
         )

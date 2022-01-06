@@ -17,6 +17,9 @@ def test_registry():
     assert "title" in vars
     assert vars["title"] is None
     is_valid = r.validate_config_vars(vars)
+    assert not is_valid
+    vars["title"] = "test"
+    is_valid = r.validate_config_vars(vars)
     assert is_valid
 
 
@@ -39,21 +42,21 @@ def test_cannot_register_same_parameter():
     assert len(r.parameters) == 0
     print(r.parameters)
     r.register(
-        Parameter(
+        Parameter[int](
             singular="num_buf",
             plural="num_bufs",
             kind=ParameterKind.PARAM,
-            default_value=[],
+            default_values=[50],
             required=True,
         )
     )
     assert len(r.parameters) == 1
     r.register(
-        Parameter(
+        Parameter[int](
             singular="num_buf",
             plural="num_bufs",
             kind=ParameterKind.PARAM,
-            default_value=[],
+            default_values=[50],
             required=True,
         )
     )
@@ -63,11 +66,11 @@ def test_cannot_register_same_parameter():
 def init_registry() -> ParameterRegistry:
     registry = ParameterRegistry()
     registry.register(
-        Parameter(
+        Parameter[int](
             singular="num_buf",
             plural="num_bufs",
             kind=ParameterKind.PARAM,
-            default_value=[],
+            default_values=[50],
             required=True,
         )
     )

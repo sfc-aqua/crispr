@@ -29,7 +29,7 @@ def test_parameter_default_value_both_singular_n_plural():
     assert v == [5]
 
 
-def test_parameter_type():
+def test_parameter_type_int():
     p = Parameter[int](
         singular="num_buf",
         plural="num_bufs",
@@ -42,6 +42,25 @@ def test_parameter_type():
     assert p.validate_type("num_buf", [123]) == False
     assert p.validate_type("num_bufs", [123]) == True
     assert p.validate_type("num_bufs", [123, "hoge"]) == False
+    assert p.is_number()
+    assert not p.is_bool()
+
+
+def test_parameter_type_bool():
+    p = Parameter[bool](
+        singular="num_buf",
+        plural="num_bufs",
+        kind=ParameterKind.NETWORK_PARAM,
+        default_values=[True, False],
+        required=True,
+    )
+    assert p.validate_type("num_buf", "hoge") == False
+    assert p.validate_type("num_buf", 123) == False
+    assert p.validate_type("num_buf", [123]) == False
+    assert p.validate_type("num_bufs", [123]) == False
+    assert p.validate_type("num_bufs", [123, "hoge"]) == False
+    assert not p.is_number()
+    assert p.is_bool()
 
 
 def test_equality():

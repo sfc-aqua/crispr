@@ -38,6 +38,8 @@ class Parameter(Generic[T]):
         return self.default_value is None
 
     def validate(self) -> bool:
+        assert hasattr(self, "__orig_class__"), f"invalid type var for {self}"  # type: ignore
+        assert len(self.__orig_class__.__args__) == 1, f"invalid type var for {self}"  # type: ignore
         if self.singular is None and self.plural is None:
             error_console.print("[red]error: Parameter.singular and Parameter.plural are both None")
             return False
@@ -66,12 +68,26 @@ class Parameter(Generic[T]):
     def validate_type(self, key: str, value: Any) -> bool:
         # https://stackoverflow.com/questions/60584388/how-to-check-typevars-type-at-runtime
         t = self.__orig_class__.__args__[0]  # type: ignore
+        is_valid = False
         if key == self.singular:
-            return isinstance(value, t)
-        if key == self.plural:
-            isinstance(value, list)
-            return isinstance(value, list) and all(isinstance(v, t) for v in value)
-        raise RuntimeError(f"Parameter error: {self}")
+            is_valid = isinstance(value, t)
+            if not is_valid:
+                error_console.print(f'[red]plan error: "{key}" is not {t.__name__}')
+        elif key == self.plural:
+            is_valid = isinstance(value, list)
+            if not is_valid:
+                error_console.print(
+                    f'[red]plan error: "{key}" is not a list, should be a list of {t.__name__}'
+                )
+            else:
+                is_valid = all(isinstance(v, t) for v in value)
+                if not is_valid:
+                    error_console.print(
+                        f'[red]plan error: "{key}" is not a list of {t.__name__}, value={value}'
+                    )
+        else:
+            raise RuntimeError(f'Parameter error: "{self}"')
+        return is_valid
 
     def is_number(self) -> bool:
         return self.__orig_class__.__args__[0] is int  # type: ignore
