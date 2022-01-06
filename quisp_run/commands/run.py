@@ -1,5 +1,6 @@
 import os
 import click
+from git import Repo
 from quisp_run.run import start_simulations
 from quisp_run.utils import console, error_console, logger
 from quisp_run.state import State
@@ -70,6 +71,13 @@ def run(ui, ned_path, quisp_root, pool_size, result_dir, simulation_plan_file_pa
         exit(1)
 
     state.quisp_workdir = os.path.join(state.quisp_root, "quisp")
+    repo = None
+    try:
+        repo = Repo(state.quisp_root)
+    except Exception as e:
+        error_console.print("Cannot open quisp repository:", e)
+        exit(1)
+    state.git_commit_rev = repo.head.object.name_rev
     exe_path = "./quisp"
     quisp_exe_path = os.path.join(state.quisp_root, exe_path)
     if not os.path.exists(quisp_exe_path):

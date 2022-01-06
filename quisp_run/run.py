@@ -51,6 +51,9 @@ def start_simulations(
         state.simulation_plan_file_path = shutil.copy(
             state.simulation_plan_file_path, state.result_dir
         )
+        with open(os.path.join(state.result_dir, "commit.txt"), "w") as f:
+            f.write(state.git_commit_rev)
+
         ned_path += ":" + plan.ned_path
         state.ned_path = ned_path
     else:

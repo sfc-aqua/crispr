@@ -26,6 +26,7 @@ class State:
     loaded: bool
     num_simulations: int
     num_finished: int
+    git_commit_rev: str
 
     def __init__(self):
         self.last_run = datetime.now()
@@ -38,6 +39,7 @@ class State:
         self.loaded = False
         self.num_simulations = 0
         self.num_finished = 0
+        self.git_commit_rev = ""
 
     def save(self):
         if not os.path.isfile(STATE_FILE_PATH):
@@ -69,5 +71,6 @@ class State:
         state.ned_path = data["ned_path"]
         state.num_simulations = data["num_simulations"]
         state.num_finished = data["num_finished"]
+        state.git_commit_rev = data["git_commit_rev"]
         state.loaded = True
         return state
