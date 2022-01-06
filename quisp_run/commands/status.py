@@ -20,4 +20,4 @@ def status():
         console.print("[red]No simulation results found.")
         exit(0)
     console.print("result file loaded from:", os.path.join(state.result_dir, "results.pickle"))
-    console.print(results)
+    console.print(len(results), "simulation results found.")
