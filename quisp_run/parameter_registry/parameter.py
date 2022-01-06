@@ -7,6 +7,7 @@ from typing import (
     Any,
     Tuple,
     Union,
+    get_args,
 )
 from dataclasses import dataclass
 from quisp_run.utils import error_console
@@ -91,3 +92,6 @@ class Parameter(Generic[T]):
 
     def is_number(self) -> bool:
         return self.__orig_class__.__args__[0] is int  # type: ignore
+
+    def is_bool(self) -> bool:
+        return self.__orig_class__.__args__[0] is bool  # type: ignore

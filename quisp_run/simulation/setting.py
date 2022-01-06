@@ -49,17 +49,23 @@ class SimSetting:
         # dynamic parameters
         for key in self.fields:
             param_def = registry.find_by_name(key)
+            parent = ""
             if param_def.kind == ParameterKind.NETWORK_PARAM:
-                if param_def.is_number():
-                    config_str += "{}.{}={}\n".format(
-                        network_name, param_def.param_key, self.fields[key]
-                    )
-                else:
-                    config_str += '{}.{}="{}"\n'.format(
-                        network_name, param_def.param_key, self.fields[key]
-                    )
+                parent = network_name
             elif param_def.kind == ParameterKind.PARAM:
-                config_str += "**.{}={}\n".format(param_def.param_key, self.fields[key])
+                parent = "**"
+
+            if parent:
+                config_str += f"{parent}."
+                param_key = param_def.param_key
+                value = self.fields[key]
+
+                if param_def.is_number():
+                    config_str += f"{param_key}={value}\n"
+                elif param_def.is_bool():
+                    config_str += f'{param_key}={"true" if value else "false"}\n'
+                else:  # string
+                    config_str += f'{param_key}="{value}"\n'
 
         return config_str
 

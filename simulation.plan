@@ -13,3 +13,4 @@ purification_types = [1001, 5555]
 link_tomography_enabled_list = ["true", "false"]
 lone_initiator_addrs = [0, 1]
 traffic_pattern_indices = [0, 1, 2]
+link_tomography_enabled = True
