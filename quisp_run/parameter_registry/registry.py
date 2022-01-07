@@ -37,9 +37,8 @@ class ParameterRegistry:
                 if key and key in vars:
                     if not parameter.validate_type(key, vars[key]):
                         is_valid = False
-
-                key = parameter.plural
-                if key and key in vars:
+                elif parameter.plural and parameter.plural in vars:
+                    key = parameter.plural
                     if not parameter.validate_type(key, vars[key]):
                         is_valid = False
         return is_valid
@@ -170,6 +169,16 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             default_values=[1001],
             required=True,
             param_key="qrsa.hm.Purification_type",
+        )
+    )
+    registry.register(
+        Parameter[bool](
+            singular="e2e_connection_enabled",
+            plural="e2e_connection_enabled_list",
+            kind=ParameterKind.PARAM,
+            default_value=True,
+            required=True,
+            param_key="app.EndToEndConnection",
         )
     )
     return registry

@@ -69,26 +69,35 @@ class Parameter(Generic[T]):
     def validate_type(self, key: str, value: Any) -> bool:
         # https://stackoverflow.com/questions/60584388/how-to-check-typevars-type-at-runtime
         t = self.__orig_class__.__args__[0]  # type: ignore
-        is_valid = False
         if key == self.singular:
-            is_valid = isinstance(value, t)
-            if not is_valid:
+            if value is None:
+                error_console.print(f'[red]plan error: "{key}" is missing')
+                return False
+
+            if not isinstance(value, t):
                 error_console.print(f'[red]plan error: "{key}" is not {t.__name__}')
-        elif key == self.plural:
-            is_valid = isinstance(value, list)
-            if not is_valid:
+                return False
+
+            return True
+
+        if key == self.plural:
+            if value is None:
+                error_console.print(f'[red]plan error: "{key}" is missing')
+                return False
+
+            if not isinstance(value, list):
                 error_console.print(
                     f'[red]plan error: "{key}" is not a list, should be a list of {t.__name__}'
                 )
-            else:
-                is_valid = all(isinstance(v, t) for v in value)
-                if not is_valid:
-                    error_console.print(
-                        f'[red]plan error: "{key}" is not a list of {t.__name__}, value={value}'
-                    )
-        else:
-            raise RuntimeError(f'Parameter error: "{self}"')
-        return is_valid
+                return False
+
+            if not all(isinstance(v, t) for v in value):
+                error_console.print(
+                    f'[red]plan error: "{key}" is not a list of {t.__name__}, value={value}'
+                )
+                return False
+            return True
+        raise RuntimeError(f'Parameter error: "{self}", key={key}, value={value}')
 
     def is_number(self) -> bool:
         return self.__orig_class__.__args__[0] is int  # type: ignore
