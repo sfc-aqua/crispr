@@ -181,4 +181,24 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             param_key="app.EndToEndConnection",
         )
     )
+    registry.register(
+        Parameter[int](
+            singular="num_measure",
+            plural="num_measures",
+            kind=ParameterKind.PARAM,
+            default_values=[3000],
+            required=True,
+            param_key="qrsa.hm.num_measure",
+        )
+    )
+    registry.register(
+        Parameter[int](
+            singular="num_e2e_measure",
+            plural="num_e2e_measures",
+            kind=ParameterKind.PARAM,
+            default_values=[3000],
+            required=True,
+            param_key="app.distant_measure_count",
+        )
+    )
     return registry

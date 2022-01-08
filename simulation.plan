@@ -1,13 +1,15 @@
 # -*- mode: py; -*-
 # simulation plan
 title = "example plan"
-num_bufs = [10, 25, 50]
+num_bufs = [10, 25, 50, 100]
 num_nodes = [i for i in range(10, 100, 10)]
 network_types = ["linear"]
 connection_types = ["MIM", "MM"]
 num_purification_iterations = [0, 1, 2]
 purification_types = [1001]
-lone_initiator_addrs = [0, 1]
+lone_initiator_addrs = [0, 1, 2, 3]
 traffic_pattern_indices = [1, 2]
-link_tomography_enabled_list = [False]
+link_tomography_enabled_list = [True, False]
 e2e_connection_enabled_list = [True, False]
+num_measures = [1000, 2000, 3000, 4000]
+num_e2e_measures = [1000, 2000, 3000, 4000]
