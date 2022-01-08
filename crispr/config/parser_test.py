@@ -1,12 +1,13 @@
+import pytest
 from crispr.config.parser import parse_config
 from crispr.parameter_registry import ParameterRegistry, init_registry
 
 
 def test_empty_plan():
     plan_source = ""
-    plan = parse_config(plan_source, init_registry(ParameterRegistry()))
-    print(plan.config_vars)
-    assert plan["title"] == ""
+    with pytest.raises(SystemExit) as e:
+        parse_config(plan_source, init_registry(ParameterRegistry()))
+    assert e.value.code == 1
 
 
 def test_simple_plan():

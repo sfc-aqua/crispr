@@ -3,7 +3,7 @@ import itertools, os, time, shutil
 from crispr.parameter_registry import ParameterRegistry
 from crispr.simulation import SimSetting
 from crispr.state import State
-from crispr.utils import logger
+from crispr.utils import logger, error_console
 from crispr.constants import (
     CRISPR_ROOT_DIR,
     CRISPR_TEMPALTE_IPYNB,
@@ -37,14 +37,24 @@ class SimPlan:
             keys = []
             vals = []
             for p in self.registry.parameters:
-                if p.plural is not None:
-                    if p.plural in variables:
+                if p.plural:
+                    if p.plural in variables and variables[p.plural] is not None:
                         vals.append(variables[p.plural])
                         keys.append(p.plural)
-                    elif p.singular is not None and p.singular in variables:
+                        if (
+                            p.singular
+                            and p.singular in variables
+                            and variables[p.singular] is not None
+                        ):
+                            error_console.print(
+                                f'[yellow] warning: cannot use "{p.singular}" and "{p.plural}" parameter at the same time'
+                            )
+                    elif (
+                        p.singular and p.singular in variables and variables[p.singular] is not None
+                    ):
                         vals.append([variables[p.singular]])
                         keys.append(p.singular)
-                elif p.singular is not None and p.singular in variables:
+                elif p.singular and p.singular in variables and variables[p.singular] is not None:
                     vals.append([variables[p.singular]])
                     keys.append(p.singular)
             return keys, vals

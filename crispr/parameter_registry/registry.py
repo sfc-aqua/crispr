@@ -33,14 +33,19 @@ class ParameterRegistry:
                     )
                     is_valid = False
 
-                key = parameter.singular
-                if key and key in vars:
-                    if not parameter.validate_type(key, vars[key]):
-                        is_valid = False
-                elif parameter.plural and parameter.plural in vars:
-                    key = parameter.plural
-                    if not parameter.validate_type(key, vars[key]):
-                        is_valid = False
+            key = parameter.singular
+            if key and key in vars:
+                if not parameter.validate_type(key, vars[key]):
+                    is_valid = False
+                if not parameter.plural and parameter.plural in vars:
+                    error_console.print(
+                        f"[red]error: both {parameter.singular} and {parameter.plural} are used. Only one is allowed"
+                    )
+                    is_valid = False
+            elif parameter.plural and parameter.plural in vars:
+                key = parameter.plural
+                if not parameter.validate_type(key, vars[key]):
+                    is_valid = False
         return is_valid
 
     def get_singular_name(self, singular_or_plural_name: str) -> str:
