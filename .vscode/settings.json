@@ -1,7 +1,6 @@
 {
     "python.formatting.provider": "black",
     "python.testing.pytestArgs": [
-        "quisp_run",
         "-s"
     ],
     "python.testing.unittestEnabled": false,
