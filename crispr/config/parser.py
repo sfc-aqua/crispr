@@ -1,6 +1,6 @@
-from quisp_run.simulation import SimPlan
-from quisp_run.utils import console, error_console
-from quisp_run.parameter_registry import ParameterRegistry
+from crispr.simulation import SimPlan
+from crispr.utils import console, error_console
+from crispr.parameter_registry import ParameterRegistry
 
 
 def define_param(*args, **kwargs):

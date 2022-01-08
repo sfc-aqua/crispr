@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from quisp_run.utils import error_console
+from crispr.utils import error_console
 from .parameter import Parameter, ParameterKind
 
 
@@ -117,7 +117,7 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             singular="config_ini_file",
             plural=None,
             kind=ParameterKind.BUILT_IN,
-            default_value="${QUISP_RUN_ROOT_DIR}/config/omnetpp.ini",
+            default_value="${CRISPR_ROOT_DIR}/config/omnetpp.ini",
             required=True,
         )
     )

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["zigen <hrlclb@gmail.com>"]
 include = ["templates"]
-packages = [ {include = "quisp_run"}]
+packages = [ {include = "crispr"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -23,7 +23,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-crispr = "quisp_run.main:main"
+crispr = "crispr.main:main"
 
 [tool.poetry.build]
 generate-setup-file = false

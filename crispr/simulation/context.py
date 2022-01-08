@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Optional, List, Any
 from .setting import SimSetting
 from .result import Result
-from quisp_run.parameter_registry import ParameterRegistry
+from crispr.parameter_registry import ParameterRegistry
 
 if TYPE_CHECKING:
     from .plan import SimPlan

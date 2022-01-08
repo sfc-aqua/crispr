@@ -1,14 +1,14 @@
 from typing import List, Dict, Any, Tuple
 import itertools, os, time, shutil
-from quisp_run.parameter_registry import ParameterRegistry
-from quisp_run.simulation import SimSetting
-from quisp_run.state import State
-from quisp_run.utils import logger
-from quisp_run.constants import (
-    QUISP_RUN_ROOT_DIR,
-    QUISP_TEMPALTE_IPYNB,
-    QUISP_TEMPALTE_OMNETPP_INI,
-    QUISP_TEMPALTE_TOPOLOGY_DIR,
+from crispr.parameter_registry import ParameterRegistry
+from crispr.simulation import SimSetting
+from crispr.state import State
+from crispr.utils import logger
+from crispr.constants import (
+    CRISPR_ROOT_DIR,
+    CRISPR_TEMPALTE_IPYNB,
+    CRISPR_TEMPALTE_OMNETPP_INI,
+    CRISPR_TEMPALTE_TOPOLOGY_DIR,
 )
 
 
@@ -68,10 +68,10 @@ class SimPlan:
         self.result_dir = result_dir
 
         logger.debug("Creating result dir: %s", self.result_dir)
-        shutil.copy(QUISP_TEMPALTE_OMNETPP_INI, os.path.join(result_dir, "omnetpp.ini"))
-        shutil.copy(QUISP_TEMPALTE_IPYNB, os.path.join(result_dir, "analysis.ipynb"))
+        shutil.copy(CRISPR_TEMPALTE_OMNETPP_INI, os.path.join(result_dir, "omnetpp.ini"))
+        shutil.copy(CRISPR_TEMPALTE_IPYNB, os.path.join(result_dir, "analysis.ipynb"))
         topology_path = os.path.join(result_dir, "topology")
-        shutil.copytree(QUISP_TEMPALTE_TOPOLOGY_DIR, topology_path)
+        shutil.copytree(CRISPR_TEMPALTE_TOPOLOGY_DIR, topology_path)
         self.ned_path = topology_path
         return (result_dir, ned_dir)
 

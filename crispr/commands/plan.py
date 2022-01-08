@@ -1,7 +1,7 @@
 import click
-from quisp_run import config
-from quisp_run.parameter_registry.registry import ParameterRegistry, init_registry
-from quisp_run.utils import console
+from crispr import config
+from crispr.parameter_registry.registry import ParameterRegistry, init_registry
+from crispr.utils import console
 from rich.prompt import Confirm
 
 

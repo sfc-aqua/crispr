@@ -1,7 +1,7 @@
 import click
 import os, pickle
-from quisp_run.state import State
-from quisp_run.utils import console
+from crispr.state import State
+from crispr.utils import console
 
 
 @click.command()

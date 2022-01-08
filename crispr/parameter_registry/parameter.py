@@ -10,7 +10,7 @@ from typing import (
     get_args,
 )
 from dataclasses import dataclass
-from quisp_run.utils import error_console
+from crispr.utils import error_console
 
 
 class ParameterKind(Enum):

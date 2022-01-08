@@ -1,12 +1,12 @@
 import asyncio, shutil, glob, os
-from quisp_run.simulation import SimContext
-from quisp_run.simulation.context import OmnetppEnv
-from quisp_run.workers import Executor, Writer, job_display
-from quisp_run.config import parse_config
+from crispr.simulation import SimContext
+from crispr.simulation.context import OmnetppEnv
+from crispr.workers import Executor, Writer, job_display
+from crispr.config import parse_config
 
-from quisp_run.utils import console, error_console, logger
-from quisp_run.state import State
-from quisp_run.parameter_registry import ParameterRegistry, init_registry
+from crispr.utils import console, error_console, logger
+from crispr.state import State
+from crispr.parameter_registry import ParameterRegistry, init_registry
 
 
 def start_simulations(

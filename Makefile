@@ -1,6 +1,6 @@
 .PHONY: format build all clean
 format:
-	poetry run black ./quisp_run/*.py ./quisp_run/**/*.py 
+	poetry run black ./crispr/*.py ./crispr/**/*.py 
 
 build:
 	poetry build
@@ -10,4 +10,4 @@ all:
 	pip install -e .
 
 clean:
-	rm -rf dist quisp_run/__pycache__ __pycache__
+	rm -rf dist crispr/__pycache__ __pycache__

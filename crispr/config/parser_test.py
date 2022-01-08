@@ -1,5 +1,5 @@
-from quisp_run.config.parser import parse_config
-from quisp_run.parameter_registry import ParameterRegistry, init_registry
+from crispr.config.parser import parse_config
+from crispr.parameter_registry import ParameterRegistry, init_registry
 
 
 def test_empty_plan():

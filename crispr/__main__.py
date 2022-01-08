@@ -1,4 +1,4 @@
-from quisp_run.main import main
+from crispr.main import main
 
 
 if __name__ == "__main__":

@@ -4,9 +4,9 @@
 import click
 from typing import List
 
-from quisp_run import commands
+from crispr import commands
 import logging
-from quisp_run.utils import logger
+from crispr.utils import logger
 
 
 @click.group()

@@ -5,8 +5,8 @@ from rich.console import Console, Group
 from rich.progress import Progress
 from rich.live import Live
 
-from quisp_run.simulation import SimContext
-from quisp_run.workers.executor import Executor, WorkerStatus
+from crispr.simulation import SimContext
+from crispr.workers.executor import Executor, WorkerStatus
 
 
 def simulation_progress(console: Console) -> Progress:

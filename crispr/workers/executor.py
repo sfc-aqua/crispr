@@ -3,8 +3,8 @@ from typing import List, Optional
 from enum import Enum
 from rich.progress import TaskID
 from rich.console import Console
-from quisp_run.simulation import Result, SimContext, SimSetting
-from quisp_run.utils import parse_time, logger
+from crispr.simulation import Result, SimContext, SimSetting
+from crispr.utils import parse_time, logger
 
 
 class WorkerStatus(Enum):

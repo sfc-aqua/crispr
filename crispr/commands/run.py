@@ -1,9 +1,9 @@
 import os
 import click
 from git import Repo
-from quisp_run.run import start_simulations
-from quisp_run.utils import console, error_console, logger
-from quisp_run.state import State
+from crispr.run import start_simulations
+from crispr.utils import console, error_console, logger
+from crispr.state import State
 
 
 @click.command()
@@ -37,7 +37,7 @@ def run(ui, ned_path, quisp_root, pool_size, result_dir, simulation_plan_file_pa
             console.print("[green]Found previous state.")
             console.print(
                 "\n[green]if you want to resume the last simulation, "
-                "type[cyan] $ quisp_run resume \n"
+                "type[cyan] $ crispr resume \n"
                 "[green]or if you want to start a new simulation, "
                 "add [cyan]-f[green] or [cyan]--force[green] option."
             )

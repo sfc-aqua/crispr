@@ -1,6 +1,6 @@
 import pickle, os
 from typing import Dict
-from quisp_run.simulation import SimContext
+from crispr.simulation import SimContext
 
 
 class Writer:

@@ -1,7 +1,7 @@
 from typing import List, Optional, TYPE_CHECKING, Any, Dict
-from quisp_run.parameter_registry.parameter import ParameterKind
-from quisp_run.utils import replace_path_placeholder, logger
-from quisp_run.parameter_registry import registry
+from crispr.parameter_registry.parameter import ParameterKind
+from crispr.utils import replace_path_placeholder, logger
+from crispr.parameter_registry import registry
 import os
 
 if TYPE_CHECKING:

@@ -1,8 +1,8 @@
 import click
 from rich.prompt import Confirm
-from quisp_run.state import State
-from quisp_run.utils import console
-from quisp_run.run import start_simulations
+from crispr.state import State
+from crispr.utils import console
+from crispr.run import start_simulations
 
 
 @click.command()

@@ -1,5 +1,5 @@
-from quisp_run.simulation import SimPlan
-from quisp_run.parameter_registry import init_registry, ParameterRegistry
+from crispr.simulation import SimPlan
+from crispr.parameter_registry import init_registry, ParameterRegistry
 
 
 def test_populate():
