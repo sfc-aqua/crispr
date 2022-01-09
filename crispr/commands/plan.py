@@ -2,21 +2,29 @@ import click
 from crispr import config
 from crispr.parameter_registry.registry import ParameterRegistry, init_registry
 from crispr.utils import console
+from crispr.constants import CRISPR_TEMPALTE_PARAMETERS_TOML
 from rich.prompt import Confirm
 
 
 @click.command()
+@click.option(
+    "--parameter-schema", type=click.Path(exists=True), default=CRISPR_TEMPALTE_PARAMETERS_TOML
+)
 @click.argument(
     "simulation_plan_file_path",
     type=click.Path(exists=True),
     required=False,
     default="simulation.plan",
 )
-def plan(simulation_plan_file_path: str):
+def plan(simulation_plan_file_path: str, parameter_schema: str):
     source = ""
     with open(simulation_plan_file_path, "rt") as f:
         source = f.read()
-    registry = init_registry(ParameterRegistry())
+    param_toml = ""
+    with open(parameter_schema, "rt") as f:
+        param_toml = f.read()
+    registry = ParameterRegistry()
+    registry.load_from_toml(param_toml)
     sim_plan = config.parse_config(source, registry)
     settings = sim_plan.populate()
     console.print(f"[green]{len(settings)} simulation settings populated.")

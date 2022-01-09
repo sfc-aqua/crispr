@@ -4,16 +4,26 @@ import pytest
 
 def test_registry():
     r = ParameterRegistry()
-    r.register(
-        Parameter[str](
-            singular="title",
-            plural=None,
-            kind=ParameterKind.META,
-            default_value=None,
-            required=True,
-        )
+    r.register_all(
+        [
+            Parameter[str](
+                singular="title",
+                plural=None,
+                kind=ParameterKind.META,
+                default_value=None,
+                required=True,
+            ),
+            Parameter[str](
+                singular="config_ini_file",
+                plural=None,
+                kind=ParameterKind.META,
+                default_value=None,
+                required=True,
+            ),
+        ]
     )
     vars = r.create_default_config_vars()
+    vars["config_ini_file"] = "test"
     assert "title" in vars
     assert vars["title"] is None
     is_valid = r.validate_config_vars(vars)
@@ -40,7 +50,6 @@ def test_validate_config_vars():
 def test_cannot_register_same_parameter():
     r = ParameterRegistry()
     assert len(r.parameters) == 0
-    print(r.parameters)
     r.register(
         Parameter[int](
             singular="num_buf",
@@ -61,55 +70,77 @@ def test_cannot_register_same_parameter():
         )
     )
     assert len(r.parameters) == 1
+
+
+def test_load_toml_file():
+    toml_str = """
+title = "hoge"
+
+[parameter.num_buf]
+plural = "num_bufs"
+default_values = [5]
+kind = "meta"
+type = "int"
+required = true
+param_key = "beffers"
+
+[parameter.num_node]
+plural = "num_nodes"
+default_values = [5]
+kind = "param"
+type = "int"
+required = true
+param_key = "nodes"
+"""
+    params = ParameterRegistry.extract_config(toml_str)
+    r = ParameterRegistry()
+    r.register_all(params)
 
 
 def init_registry() -> ParameterRegistry:
     registry = ParameterRegistry()
-    registry.register(
-        Parameter[int](
-            singular="num_buf",
-            plural="num_bufs",
-            kind=ParameterKind.PARAM,
-            default_values=[50],
-            required=True,
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="num_node",
-            plural="num_nodes",
-            kind=ParameterKind.NETWORK_PARAM,
-            default_values=[5],
-            required=True,
-        )
-    )
-    registry.register(
-        Parameter[str](
-            singular="network_type",
-            plural="network_types",
-            kind=ParameterKind.BUILT_IN,
-            default_value="linear",
-            required=True,
-            options=["linear"],
-        )
-    )
-    registry.register(
-        Parameter[str](
-            singular="connection_type",
-            plural="connection_types",
-            kind=ParameterKind.NETWORK_PARAM,
-            default_value=None,
-            required=True,
-            options=["MIM", "MM"],
-        )
-    )
-    registry.register(
-        Parameter[str](
-            singular="config_ini_file",
-            plural=None,
-            kind=ParameterKind.BUILT_IN,
-            default_value="",
-            required=True,
-        )
-    )
+    config_toml = """
+title = "test config"
+
+[parameter.num_buf]
+plural = "num_bufs"
+kind = "param"
+type = "int"
+required = true
+default_values = [50]
+param_key = "beffers"
+
+[parameter.num_node]
+plural = "num_nodes"
+kind = "network_param"
+type = "int"
+default_values = [5]
+required = true
+param_key = "numNodes"
+
+[parameter.network_type]
+plural = "network_types"
+kind = "built_in"
+default_values = ["linear"]
+required = true
+param_key = "networkType"
+type = "str"
+options = ["linear"]
+
+[parameter.connection_type]
+plural = "connection_types"
+kind = "network_param"
+required = true
+param_key = "connectionType"
+type = "str"
+options = ["MM", "MIM"]
+
+[parameter.config_ini_file]
+kind = "built_in"
+required = true
+param_key = ""
+type = "str"
+    """
+    registry.register_all(ParameterRegistry.extract_config(config_toml))
+
     return registry

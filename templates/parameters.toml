@@ -1,0 +1,113 @@
+title = "default parameters configuration"
+
+[parameter]
+
+[parameter.title]
+kind="meta"
+type="str"
+default_value=""
+required=true
+
+
+[parameter.num_buf]
+plural = "num_bufs"
+kind = "param"
+type = "int"
+required = true
+default_values = [50]
+param_key = "beffers"
+
+[parameter.num_node]
+plural = "num_nodes"
+kind = "network_param"
+type = "int"
+default_values = [5]
+required = true
+param_key = "numNodes"
+
+[parameter.network_type]
+plural = "network_types"
+kind = "built_in"
+default_value = "linear"
+required = true
+param_key = "networkType"
+type = "str"
+options = ["linear"]
+
+[parameter.connection_type]
+plural = "connection_types"
+kind = "network_param"
+required = true
+param_key = "connectionType"
+type = "str"
+options = ["MM", "MIM"]
+
+[parameter.config_ini_file]
+kind = "built_in"
+required = true
+default_value = "${CRISPR_ROOT_DIR}/config/omnetpp.ini"
+type = "str"
+
+[parameter.traffic_pattern_index]
+plural = "traffic_pattern_indices"
+kind = "param"
+default_value = 0
+required = true
+param_key = "app.TrafficPattern"
+type = "int"
+
+[parameter.link_tomography_enabled]
+plural = "link_tomography_enabled_list"
+kind = "param"
+default_value = false
+required = true
+param_key = "qrsa.hm.link_tomography"
+type = "bool"
+
+[parameter.num_purification_iteration]
+plural = "num_purification_iterations"
+kind = "param"
+default_values = [0]
+required = true
+param_key = "qrsa.hm.initial_purification"
+type = "int"
+
+[parameter.purification_type]
+plural = "purification_types"
+kind = "param"
+default_values = [1001]
+required = true
+param_key = "qrsa.hm.Purification_type"
+type = "int"
+
+[parameter.e2e_connection_enabled]
+plural = "e2e_connection_enabled_list"
+kind = "param"
+default_values = [false]
+required = true
+param_key = "app.EndToEndconnection"
+type = "bool"
+
+[parameter.num_measure]
+plural = "num_measures"
+kind = "param"
+default_values = [3000]
+required = true
+param_key = "qrsa.hm.num_measure"
+type = "int"
+
+[parameter.num_e2e_measure]
+plural = "num_e2e_measures"
+kind = "param"
+default_values = [3000]
+required = true
+param_key = "app.distant_measure_count"
+type = "int"
+
+[parameter.lone_initiator_addr]
+plural = "lone_initiator_addrs"
+kind = "param"
+default_values = [0]
+required = true
+param_key = "app.LoneInitiatorAddress"
+type = "int"

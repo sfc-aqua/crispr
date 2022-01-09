@@ -1,5 +1,5 @@
 from crispr.simulation import SimPlan
-from crispr.utils import console, error_console
+from crispr.utils import console, error_console, logger
 from crispr.parameter_registry import ParameterRegistry
 
 
@@ -23,6 +23,8 @@ CONFIG_EVAL_ENV_GLOBALS = {
 def parse_config(plan_source: str, registry: ParameterRegistry) -> SimPlan:
     console.print("[yellow]Parsing simulation plan...")
     config_vars = registry.create_default_config_vars()
+    logger.debug("defalut config_vars: ")
+    logger.debug(config_vars)
     try:
         exec(
             plan_source,

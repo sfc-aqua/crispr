@@ -60,6 +60,9 @@ class SimPlan:
             return keys, vals
 
         keys, vals = collect_parameters(self.config_vars)
+        logger.debug("processed vars:")
+        for kv in zip(keys, vals):
+            logger.debug("  %s: %s", kv[0], kv[1])
         setting_keys = [self.registry.get_singular_name(k) for k in keys]
         settings = []
         for params in itertools.product(*vals):

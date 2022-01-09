@@ -7,6 +7,7 @@ from crispr.config import parse_config
 from crispr.utils import console, error_console, logger
 from crispr.state import State
 from crispr.parameter_registry import ParameterRegistry, init_registry
+from crispr.constants import CRISPR_TEMPALTE_PARAMETERS_TOML
 
 
 def start_simulations(
@@ -18,7 +19,11 @@ def start_simulations(
 ):
     console.print(f"QuISP Working dir: {state.quisp_workdir}")
     console.print(f"Simulation plan: {state.simulation_plan_file_path}")
-    registry = init_registry(ParameterRegistry())
+    registry = ParameterRegistry()
+    with open(CRISPR_TEMPALTE_PARAMETERS_TOML, "rt") as f:
+        registry.load_from_toml(f.read())
+    # registry.load_from_toml(state.parameters_toml_path)
+    # registry = init_registry(ParameterRegistry())
     plan = None
 
     # populate simulation settings from simulation plan
