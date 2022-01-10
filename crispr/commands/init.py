@@ -39,7 +39,7 @@ def init(output: str, parameter_schema: str, force: bool):
 # simulation plan
 # you can use "range()", "list()", "filter()" and "map()" to generate simulation settings
 
-    """
+"""
     for name in configs:
         source += f"{name} = {configs[name].__repr__()}\n"
     logger.debug(f"generated: \n{source}")
