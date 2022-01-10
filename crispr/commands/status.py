@@ -6,6 +6,7 @@ from crispr.utils import console
 
 @click.command()
 def status():
+    """Show the status of the last simulation."""
     state = State.load()
     if state is None:
         console.print("[red]No state found.")

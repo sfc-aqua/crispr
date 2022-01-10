@@ -20,6 +20,7 @@ from rich.prompt import Confirm
     default="simulation.plan",
 )
 def plan(simulation_plan_file_path: str, parameter_schema: str):
+    """Plan simulation settings and show its details and how many simulations will be run."""
     source = ""
     with open(simulation_plan_file_path, "rt") as f:
         source = f.read()

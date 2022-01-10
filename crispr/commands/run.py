@@ -47,6 +47,7 @@ def run(
     force,
     parameter_schema,
 ):
+    """Run a new experiment."""
     state = State.load()
     if not force:
         if state is not None:

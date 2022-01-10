@@ -8,6 +8,7 @@ from crispr.run import start_simulations
 @click.command()
 @click.option("--pool-size", "-p", default=4, help="number of workers to use")
 def resume(pool_size):
+    """Resume the last simulation."""
     state = State.load()
     if state is None:
         console.print("[red]No state found. Nothing to resume.")
