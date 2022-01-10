@@ -5,7 +5,7 @@ title = "default parameters configuration"
 [parameter.title]
 kind="meta"
 type="str"
-default_value=""
+default_value="default_title"
 required=true
 
 [parameter.num_buf]
@@ -13,14 +13,14 @@ plural = "num_bufs"
 kind = "param"
 type = "int"
 required = true
-default_values = [50]
+default_values = [10, 20, 30, 40, 50]
 param_key = "beffers"
 
 [parameter.num_node]
 plural = "num_nodes"
 kind = "network_param"
 type = "int"
-default_values = [5]
+default_values = [10, 20, 30, 40, 50]
 required = true
 param_key = "numNodes"
 
