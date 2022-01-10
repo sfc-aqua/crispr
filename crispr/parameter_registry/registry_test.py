@@ -4,26 +4,10 @@ import pytest
 
 def test_registry():
     r = ParameterRegistry()
-    r.register_all(
-        [
-            Parameter[str](
-                singular="title",
-                plural=None,
-                kind=ParameterKind.META,
-                default_value=None,
-                required=True,
-            ),
-            Parameter[str](
-                singular="config_ini_file",
-                plural=None,
-                kind=ParameterKind.META,
-                default_value=None,
-                required=True,
-            ),
-        ]
-    )
+    r.find_by_name("title").default_value = None
     vars = r.create_default_config_vars()
     vars["config_ini_file"] = "test"
+    vars["network_types"] = ["linear"]
     assert "title" in vars
     assert vars["title"] is None
     is_valid = r.validate_config_vars(vars)
@@ -49,7 +33,7 @@ def test_validate_config_vars():
 
 def test_cannot_register_same_parameter():
     r = ParameterRegistry()
-    assert len(r.parameters) == 0
+    default_len = len(r.parameters)
     r.register(
         Parameter[int](
             singular="num_buf",
@@ -59,7 +43,7 @@ def test_cannot_register_same_parameter():
             required=True,
         )
     )
-    assert len(r.parameters) == 1
+    assert len(r.parameters) == default_len + 1
     r.register(
         Parameter[int](
             singular="num_buf",
@@ -69,7 +53,7 @@ def test_cannot_register_same_parameter():
             required=True,
         )
     )
-    assert len(r.parameters) == 1
+    assert len(r.parameters) == default_len + 1
 
 
 def test_load_toml_file():

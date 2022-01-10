@@ -18,7 +18,19 @@ num_bufs = [i for i in range(5, 100)]
 num_nodes = [10, 20, 30, 40, 50]
 network_types = ["linear"]
     """
-    plan = parse_config(plan_source, ParameterRegistry())
+    r = ParameterRegistry()
+    r.load_from_toml(
+        """
+title = "test"
+
+[parameter.title]
+kind = "meta"
+required = true
+default_value = "example plan"
+type = "str"
+    """
+    )
+    plan = parse_config(plan_source, r)
     assert plan["title"] == "example plan"
 
 

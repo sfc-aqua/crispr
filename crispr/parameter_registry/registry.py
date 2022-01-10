@@ -11,6 +11,7 @@ class ParameterRegistry:
 
     def __init__(self) -> None:
         self.parameters = []
+        init_registry(self)
 
     @staticmethod
     def extract_config(source_str: str) -> List[Parameter]:
@@ -24,6 +25,13 @@ class ParameterRegistry:
     def register(self, parameter: Parameter):
         if [p for p in self.parameters if p == parameter]:
             return
+        for p in self.parameters:
+            if p.singular == parameter.singular:
+                error_console.print(
+                    f"[yellow]warning: {p.singular} is already registered, override parameter definition"
+                )
+                self.parameters.remove(p)
+                break
         if not parameter.validate():
             raise RuntimeError(f"Invalid parameter: {parameter}")
         self.parameters.append(parameter)
@@ -36,7 +44,7 @@ class ParameterRegistry:
         vars = dict()
         for parameter in self.parameters:
             k, v = parameter.default_key_value()
-            vars[k] = v
+            vars[k] = None
         vars["config_ini_file"] = self.find_by_name("config_ini_file").default_value
         return vars
 
@@ -109,26 +117,7 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             required=True,
         )
     )
-    registry.register(
-        Parameter[int](
-            singular="num_buf",
-            plural="num_bufs",
-            kind=ParameterKind.PARAM,
-            default_values=[50],
-            required=True,
-            param_key="buffers",
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="num_node",
-            plural="num_nodes",
-            kind=ParameterKind.NETWORK_PARAM,
-            default_values=[5],
-            required=True,
-            param_key="numNodes",
-        )
-    )
+
     registry.register(
         Parameter[str](
             singular="network_type",
@@ -139,17 +128,7 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             options=["linear"],
         )
     )
-    registry.register(
-        Parameter[str](
-            singular="connection_type",
-            plural="connection_types",
-            kind=ParameterKind.NETWORK_PARAM,
-            default_value=None,
-            required=True,
-            options=["MIM", "MM"],
-            param_key="connectionType",
-        )
-    )
+
     registry.register(
         Parameter[str](
             singular="config_ini_file",
@@ -159,84 +138,5 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             required=True,
         )
     )
-    registry.register(
-        Parameter[int](
-            singular="traffic_pattern_index",
-            plural="traffic_pattern_indices",
-            kind=ParameterKind.PARAM,
-            default_values=[0],
-            required=True,
-            param_key="app.TrafficPattern",
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="lone_initiator_addr",
-            plural="lone_initiator_addrs",
-            kind=ParameterKind.PARAM,
-            default_values=[0],
-            required=True,
-            param_key="app.LoneInitiatorAddress",
-        )
-    )
-    registry.register(
-        Parameter[bool](
-            singular="link_tomography_enabled",
-            plural="link_tomography_enabled_list",
-            kind=ParameterKind.PARAM,
-            default_values=[False],
-            required=True,
-            param_key="qrsa.hm.link_tomography",
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="num_purification_iteration",
-            plural="num_purification_iterations",
-            kind=ParameterKind.PARAM,
-            default_values=[0],
-            required=True,
-            param_key="qrsa.hm.initial_purification",
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="purification_type",
-            plural="purification_types",
-            kind=ParameterKind.PARAM,
-            default_values=[1001],
-            required=True,
-            param_key="qrsa.hm.Purification_type",
-        )
-    )
-    registry.register(
-        Parameter[bool](
-            singular="e2e_connection_enabled",
-            plural="e2e_connection_enabled_list",
-            kind=ParameterKind.PARAM,
-            default_value=True,
-            required=True,
-            param_key="app.EndToEndConnection",
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="num_measure",
-            plural="num_measures",
-            kind=ParameterKind.PARAM,
-            default_values=[3000],
-            required=True,
-            param_key="qrsa.hm.num_measure",
-        )
-    )
-    registry.register(
-        Parameter[int](
-            singular="num_e2e_measure",
-            plural="num_e2e_measures",
-            kind=ParameterKind.PARAM,
-            default_values=[3000],
-            required=True,
-            param_key="app.distant_measure_count",
-        )
-    )
+
     return registry

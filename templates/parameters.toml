@@ -8,7 +8,6 @@ type="str"
 default_value=""
 required=true
 
-
 [parameter.num_buf]
 plural = "num_bufs"
 kind = "param"
@@ -25,15 +24,6 @@ default_values = [5]
 required = true
 param_key = "numNodes"
 
-[parameter.network_type]
-plural = "network_types"
-kind = "built_in"
-default_value = "linear"
-required = true
-param_key = "networkType"
-type = "str"
-options = ["linear"]
-
 [parameter.connection_type]
 plural = "connection_types"
 kind = "network_param"
@@ -41,12 +31,6 @@ required = true
 param_key = "connectionType"
 type = "str"
 options = ["MM", "MIM"]
-
-[parameter.config_ini_file]
-kind = "built_in"
-required = true
-default_value = "${CRISPR_ROOT_DIR}/config/omnetpp.ini"
-type = "str"
 
 [parameter.traffic_pattern_index]
 plural = "traffic_pattern_indices"
