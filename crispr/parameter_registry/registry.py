@@ -40,11 +40,14 @@ class ParameterRegistry:
         for p in parameters:
             self.register(p)
 
-    def create_default_config_vars(self) -> Dict[str, Any]:
+    def create_default_config_vars(self, fill_default: bool = False) -> Dict[str, Any]:
         vars = dict()
         for parameter in self.parameters:
             k, v = parameter.default_key_value()
-            vars[k] = None
+            if fill_default:
+                vars[k] = v
+            else:
+                vars[k] = None
         vars["config_ini_file"] = self.find_by_name("config_ini_file").default_value
         return vars
 
@@ -123,7 +126,7 @@ def init_registry(registry: ParameterRegistry) -> ParameterRegistry:
             singular="network_type",
             plural="network_types",
             kind=ParameterKind.BUILT_IN,
-            default_value="linear",
+            default_values=["linear"],
             required=True,
             options=["linear"],
         )

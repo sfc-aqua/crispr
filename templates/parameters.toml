@@ -29,13 +29,14 @@ plural = "connection_types"
 kind = "network_param"
 required = true
 param_key = "connectionType"
+default_values = ["MM", "MIM"]
 type = "str"
 options = ["MM", "MIM"]
 
 [parameter.traffic_pattern_index]
 plural = "traffic_pattern_indices"
 kind = "param"
-default_value = 0
+default_values = [0,1,2]
 required = true
 param_key = "app.TrafficPattern"
 type = "int"
@@ -43,7 +44,7 @@ type = "int"
 [parameter.link_tomography_enabled]
 plural = "link_tomography_enabled_list"
 kind = "param"
-default_value = false
+default_values = [false, true]
 required = true
 param_key = "qrsa.hm.link_tomography"
 type = "bool"
