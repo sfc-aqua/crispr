@@ -1,4 +1,4 @@
-.PHONY: format build all clean
+.PHONY: format build all clean check
 format:
 	poetry run black ./crispr/*.py ./crispr/**/*.py 
 
@@ -11,3 +11,6 @@ all:
 
 clean:
 	rm -rf dist crispr/__pycache__ __pycache__
+
+check:
+	poetry run pytest -s

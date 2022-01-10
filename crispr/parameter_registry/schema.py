@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any, MutableMapping
 from schema import Schema, Optional, Or, SchemaError
 from crispr.utils import error_console
 
@@ -21,7 +21,7 @@ PARAM_SCHEMA_SCHEMA = Schema(
 )
 
 
-def validate_config(conf: Dict[str, Any]) -> bool:
+def validate_config(conf: MutableMapping[str, Any]) -> bool:
     try:
         PARAM_SCHEMA_SCHEMA.validate(conf)
     except SchemaError as e:
