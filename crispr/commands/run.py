@@ -4,6 +4,7 @@ from git import Repo
 from crispr.run import start_simulations
 from crispr.utils import console, error_console, logger
 from crispr.state import State
+from crispr.constants import CRISPR_TEMPALTE_PARAMETERS_TOML
 
 
 @click.command()
@@ -29,8 +30,23 @@ from crispr.state import State
     is_flag=True,
     help="ignore unfinished simulation and start new run",
 )
+@click.option(
+    "--parameter-schema",
+    type=click.Path(exists=True),
+    default=CRISPR_TEMPALTE_PARAMETERS_TOML,
+    help="path to the parameter schema toml file",
+)
 @click.argument("simulation_plan_file_path", type=click.Path(exists=True), required=False)
-def run(ui, ned_path, quisp_root, pool_size, result_dir, simulation_plan_file_path, force):
+def run(
+    ui,
+    ned_path,
+    quisp_root,
+    pool_size,
+    result_dir,
+    simulation_plan_file_path,
+    force,
+    parameter_schema,
+):
     state = State.load()
     if not force:
         if state is not None:
@@ -52,6 +68,7 @@ def run(ui, ned_path, quisp_root, pool_size, result_dir, simulation_plan_file_pa
     state.results_root_dir = (
         result_dir if result_dir else os.path.join(state.current_working_dir, "results")
     )
+    state.parameters_toml_path = parameter_schema
     if not os.path.isabs(state.results_root_dir):
         state.results_root_dir = os.path.abspath(state.results_root_dir)
 

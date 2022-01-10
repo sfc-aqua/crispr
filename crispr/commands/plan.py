@@ -8,7 +8,10 @@ from rich.prompt import Confirm
 
 @click.command()
 @click.option(
-    "--parameter-schema", type=click.Path(exists=True), default=CRISPR_TEMPALTE_PARAMETERS_TOML
+    "--parameter-schema",
+    type=click.Path(exists=True),
+    default=CRISPR_TEMPALTE_PARAMETERS_TOML,
+    help="path to the parameter schema toml file",
 )
 @click.argument(
     "simulation_plan_file_path",
