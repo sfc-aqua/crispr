@@ -110,7 +110,7 @@ class Executor:
     async def run_quisp(self, cmd: List[str]):
         logger.debug("[Executor] run_quisp: %s", cmd)
         proc = await asyncio.create_subprocess_shell(
-            "time " + " ".join(cmd),
+            "/usr/bin/time -p -- " + " ".join(cmd),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=self.context.working_dir,
@@ -158,14 +158,16 @@ class Executor:
                             self.ev_per_sec = float(match.group(1))
                     lines.append(re.sub(r"\s+", ",", buf))
             while len(stderr._buffer) > 0:  # type: ignore
+
                 buf = (await proc.stderr.readline()).decode().strip()
+
                 # parse time command output
                 if buf.startswith("real"):
-                    self.real_time = parse_time(buf.split("\t")[1])
+                    self.real_time = parse_time(buf.split(" ")[1])
                 elif buf.startswith("sys"):
-                    self.sys_time = parse_time(buf.split("\t")[1])
+                    self.sys_time = parse_time(buf.split(" ")[1])
                 elif buf.startswith("user"):
-                    self.user_time = parse_time(buf.split("\t")[1])
+                    self.user_time = parse_time(buf.split(" ")[1])
                 elif buf:
                     self.context.log("[red]Err: ", buf)
                     self.error_messages += buf + "\n"
