@@ -1,4 +1,4 @@
-# CRISPR: QuISP Benchmark Runner
+# QuISPR: QuISP Runner
 
 ## Prerequisites
 * Poetry
@@ -12,31 +12,31 @@ $ poetry install
 # (if you don't want to make your environment dirty)
 $ poetry shell
 
-# install crispr command in editable mode
+# install quispr command in editable mode
 $ pip install -e .
 
-# then you can use the "crispr" command
+# then you can use the "quispr" command
 # show help
-$ crispr --help
+$ quispr --help
 ```
 ## Usage
 ```sh
 # validate your plan file 
-$ crispr plan ./simulation.plan
+$ quispr plan ./simulation.plan
 
 # run all simulations
-$ crispr run ./simulation.plan -r ../your-quisp-repository -o ../output-dir
+$ quispr run ./simulation.plan -r ../your-quisp-repository -o ../output-dir
 
 # run simulations with 16 workers
-$ crispr run ./simulation.plan -r ../your-quisp-repository -o ../output-dir -p 16
+$ quispr run ./simulation.plan -r ../your-quisp-repository -o ../output-dir -p 16
 
 # and you can type Ctrl-C to stop the simulations
 
 # then you can resume the stopped simulation
-$ crispr resume
+$ quispr resume
 
 # you can check the stopped simulations status
-$ crispr status
+$ quispr status
 ```
 
 ## Results Directory

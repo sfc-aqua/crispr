@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "crispr"
+name = "quispr"
 version = "0.1.0"
 description = ""
 authors = ["zigen <hrlclb@gmail.com>"]
@@ -25,7 +25,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-crispr = "crispr.main:main"
+quispr = "crispr.main:main"
 
 [tool.poetry.build]
 generate-setup-file = false
