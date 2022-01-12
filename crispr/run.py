@@ -1,4 +1,4 @@
-import asyncio, shutil, glob, os
+import asyncio, shutil, glob, os, subprocess
 from crispr.simulation import SimContext
 from crispr.simulation.context import OmnetppEnv
 from crispr.workers import Executor, Writer, job_display
@@ -22,8 +22,6 @@ def start_simulations(
     registry = ParameterRegistry()
     with open(CRISPR_TEMPALTE_PARAMETERS_TOML, "rt") as f:
         registry.load_from_toml(f.read())
-    # registry.load_from_toml(state.parameters_toml_path)
-    # registry = init_registry(ParameterRegistry())
     plan = None
 
     # populate simulation settings from simulation plan
@@ -50,9 +48,23 @@ def start_simulations(
                 exist_ok=True,
             )
             shutil.copy(ned_file, os.path.join(ned_dir, ned_file[len(state.quisp_workdir) + 1 :]))
-        shutil.copy(
-            os.path.join(state.quisp_workdir, exe_path), os.path.join(state.result_dir, "quisp_bin")
-        )
+        quisp_bin_path = os.path.join(state.quisp_workdir, exe_path)
+        if not os.path.exists(quisp_bin_path):
+            error_console.print(f"[red]QuISP binary not found at {quisp_bin_path}")
+            exit(1)
+
+        try:
+            return_code = subprocess.run(
+                ["./quisp/quisp", "-h"], stderr=subprocess.PIPE, stdout=subprocess.PIPE
+            ).returncode
+            if return_code != 0:
+                error_console.print(f"[red]QuISP binary has error at {quisp_bin_path}")
+                exit(1)
+        except Exception as e:
+            error_console.print(f"[red]falied to check QuISP binary at {quisp_bin_path}")
+            error_console.print_exception()
+            exit(1)
+        shutil.copy(quisp_bin_path, os.path.join(state.result_dir, "quisp_bin"))
         state.simulation_plan_file_path = shutil.copy(
             state.simulation_plan_file_path, state.result_dir
         )
