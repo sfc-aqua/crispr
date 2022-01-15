@@ -31,7 +31,7 @@ from crispr.constants import CRISPR_TEMPALTE_PARAMETERS_TOML
     help="ignore unfinished simulation and start new run",
 )
 @click.option(
-    "--parameter-schema",
+    "--parameter-toml-path",
     type=click.Path(exists=True),
     default=CRISPR_TEMPALTE_PARAMETERS_TOML,
     help="path to the parameter schema toml file",
@@ -45,7 +45,7 @@ def run(
     result_dir,
     simulation_plan_file_path,
     force,
-    parameter_schema,
+    parameter_toml_path,
 ):
     """Run a new experiment."""
     state = State.load()
@@ -69,12 +69,15 @@ def run(
     state.results_root_dir = (
         result_dir if result_dir else os.path.join(state.current_working_dir, "results")
     )
-    state.parameters_toml_path = parameter_schema
+    state.parameters_toml_path = parameter_toml_path
     if not os.path.isabs(state.results_root_dir):
         state.results_root_dir = os.path.abspath(state.results_root_dir)
 
     if state.simulation_plan_file_path is None:
         state.simulation_plan_file_path = os.path.join(state.current_working_dir, "simulation.plan")
+
+    if state.parameters_toml_path is None:
+        state.parameters_toml_path = CRISPR_TEMPALTE_PARAMETERS_TOML
 
     if state.quisp_root is None:
         state.quisp_root = os.path.join(state.current_working_dir)

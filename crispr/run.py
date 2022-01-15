@@ -20,7 +20,8 @@ def start_simulations(
     console.print(f"QuISP Working dir: {state.quisp_workdir}")
     console.print(f"Simulation plan: {state.simulation_plan_file_path}")
     registry = ParameterRegistry()
-    with open(CRISPR_TEMPALTE_PARAMETERS_TOML, "rt") as f:
+
+    with open(state.parameters_toml_path, "rt") as f:
         registry.load_from_toml(f.read())
     plan = None
 
@@ -68,6 +69,7 @@ def start_simulations(
         state.simulation_plan_file_path = shutil.copy(
             state.simulation_plan_file_path, state.result_dir
         )
+        state.parameters_toml_path = shutil.copy(state.parameters_toml_path, state.result_dir)
         with open(os.path.join(state.result_dir, "commit.txt"), "w") as f:
             f.write(state.git_commit_rev)
 
