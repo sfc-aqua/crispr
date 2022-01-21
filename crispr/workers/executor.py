@@ -163,11 +163,11 @@ class Executor:
 
                 # parse time command output
                 if buf.startswith("real"):
-                    self.real_time = parse_time(buf.split(" ")[1])
+                    self.real_time = parse_time(buf.split()[1])
                 elif buf.startswith("sys"):
-                    self.sys_time = parse_time(buf.split(" ")[1])
+                    self.sys_time = parse_time(buf.split()[1])
                 elif buf.startswith("user"):
-                    self.user_time = parse_time(buf.split(" ")[1])
+                    self.user_time = parse_time(buf.split()[1])
                 elif buf:
                     self.context.log("[red]Err: ", buf)
                     self.error_messages += buf + "\n"
