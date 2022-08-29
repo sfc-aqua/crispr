@@ -3,7 +3,7 @@ name = "quispr"
 version = "0.1.0"
 description = ""
 authors = ["zigen <hrlclb@gmail.com>"]
-include = ["templates"]
+include = ["templates/*"]
 packages = [ {include = "crispr"}]
 
 [tool.poetry.dependencies]
