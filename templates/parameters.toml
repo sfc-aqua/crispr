@@ -70,7 +70,7 @@ plural = "e2e_connection_enabled_list"
 kind = "param"
 default_values = [false]
 required = true
-param_key = "app.EndToEndconnection"
+param_key = "app.EndToEndConnection"
 type = "bool"
 
 [parameter.num_measure]
