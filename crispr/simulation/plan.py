@@ -7,6 +7,7 @@ from crispr.utils import logger, error_console
 from crispr.constants import (
     CRISPR_ROOT_DIR,
     CRISPR_TEMPALTE_IPYNB,
+    CRISPR_TEMPALTE_UTILS,
     CRISPR_TEMPALTE_OMNETPP_INI,
     CRISPR_TEMPALTE_TOPOLOGY_DIR,
 )
@@ -83,6 +84,7 @@ class SimPlan:
         logger.debug("Creating result dir: %s", self.result_dir)
         shutil.copy(CRISPR_TEMPALTE_OMNETPP_INI, os.path.join(result_dir, "omnetpp.ini"))
         shutil.copy(CRISPR_TEMPALTE_IPYNB, os.path.join(result_dir, "analysis.ipynb"))
+        shutil.copy(CRISPR_TEMPALTE_UTILS, os.path.join(result_dir, "analysis_utils.py"))
         topology_path = os.path.join(result_dir, "topology")
         shutil.copytree(CRISPR_TEMPALTE_TOPOLOGY_DIR, topology_path)
         self.ned_path = topology_path
