@@ -133,6 +133,9 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
                     allocation_times[key]["last"] = None
 
         elif event_type == "BellPairGenerated":
+            if key in last_bp_record and last_bp_record[key]["simtime"] != now:
+                del last_bp_record[key]
+
             bp_annotations.append(
                 ("{}".format(int(rec["partner_addr"])), rec["simtime"], str(rec["key"]))
             )
@@ -140,26 +143,24 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
                 bp_lifetimes[key] = {"last": rec["simtime"], "usage": []}
 
             last = bp_lifetimes[key]["last"]
-            if key == (0, 0, 0, 9):
-                print(f"bp gen log: {key} at ", rec["simtime"])
 
             if last is None:
                 # normal case: just mark the simtime
                 bp_lifetimes[key]["last"] = rec["simtime"]
             else:
                 if key in last_bp_record:
-                    if last_bp_record[key]["event_type"] == "BellPairGenerated":
-                        raise RuntimeError(f"Invalid bp log state: {now} {key}")
-                    if last_bp_record[key]["simtime"] == now:
-                        bp_lifetimes[key]["usage"].append((last, now - last, "bp"))
-                        bp_lifetimes[key]["last"] = None
-                        del last_bp_record[key]
+                    assert last_bp_record[key]["event_type"] != "BellPairGenerated", f"Invalid bp log state: {now} {key}"
+                    last = last_bp_record[key]["simtime"]
+                    bp_lifetimes[key]["usage"].append((last, now - last, "bp2"))
+                    bp_lifetimes[key]["last"] = None
+                    del last_bp_record[key]
 
                 else:
                     last_bp_record[key] = rec
 
         elif event_type == "BellPairErased":
-            assert key in bp_lifetimes, f"Invalid bp log for qubit {key} at {now}. bp erased before generated"
+            if key in last_bp_record and last_bp_record[key]["simtime"] != now:
+                del last_bp_record[key]
 
             last = bp_lifetimes[key]["last"]
             if last is not None:
@@ -167,14 +168,15 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
                 bp_lifetimes[key]["last"] = None
             else:
                 if key in last_bp_record:
-                    if last_bp_record[key]["simtime"] == now and last_bp_record[key]["event_type"] == "BellPairGenerated":
-                        bp_lifetimes[key]["usage"].append((last, now - last, "bp"))
+                    if last_bp_record[key]["simtime"] != now:
+                        del last_bp_record[key]
+                    elif last_bp_record[key]["event_type"] == "BellPairGenerated":
+                        bp_lifetimes[key]["usage"].append((last, now - last, "bp4"))
                         bp_lifetimes[key]["last"] = None
+                        del last_bp_record[key]
+                else:
+                    last_bp_record[key] = rec
 
-                if key == (0, 0, 0, 9):
-
-                    print(f"invalid bp erased log: {key} at ", rec["simtime"])
-                # raise RuntimeError(f"Invalid bp log: {key}")
 
     return {
         "busy_times": busy_times,
@@ -195,6 +197,8 @@ def calc_durations(log):
             d: "DurationCollector" = durations[key]
             for us in d["usage"]:
                 usages.append((str(key), us[0], us[1], us[2]))
+        if not usages:
+            return ([], [] , [], [])
         usages = sorted(usages)
         usages.reverse()
         titles, begins, width, ts = zip(*usages)
