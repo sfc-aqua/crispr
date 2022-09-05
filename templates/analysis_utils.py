@@ -231,12 +231,12 @@ def calc_durations(log):
 class PlotConfig(TypedDict):
     height: float
     color: str
-
+    label: str
 
 PLOT_CONFIGS: "Dict[str, PlotConfig]" = {
-    "qubit_busy": {"color": "#3475D0", "height": 0.8},
-    "qubit_allocation": {"color": "#34D5D0", "height": 0.55},
-    "bp_lifetime": {"color": "#E64646", "height": 0.25},
+    "qubit_busy": {"color": "#3475D0", "height": 0.8, "label": "Qubit busy"},
+    "qubit_allocation": {"color": "#34D5D0", "height": 0.55, "label": "Qubit allocated by RuleEngine"},
+    "bp_lifetime": {"color": "#E64646", "height": 0.25, "label": "Bell pair lifetime"},
 }
 
 
@@ -262,5 +262,5 @@ def plot_timeline(ax: "Axes", timelines, data_kind: "str", config: "Optional[Plo
         linewidth=0.5,
         edgecolor="black",
         alpha=0.5,
-        label="qubit allocated by RuleEngine",
+        label=config["label"],
     )
