@@ -147,6 +147,12 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
             if last is None:
                 # normal case: just mark the simtime
                 bp_lifetimes[key]["last"] = rec["simtime"]
+                if key in last_bp_record:
+                    assert last_bp_record[key]["event_type"] == "BellPairErased", f"Invalid bp log state: {now} {key}"
+                    assert last_bp_record[key]["simtime"] == now, f"Invalid bp log state: {now}, {key}, {last_bp_record[key]}"
+                    bp_lifetimes[key]["usage"].append((now, 0.0, "bp5"))
+                    del last_bp_record[key]
+                    bp_lifetimes[key]["last"] = None
             else:
                 if key in last_bp_record:
                     assert last_bp_record[key]["event_type"] != "BellPairGenerated", f"Invalid bp log state: {now} {key}"
@@ -159,20 +165,19 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
                     last_bp_record[key] = rec
 
         elif event_type == "BellPairErased":
-            if key in last_bp_record and last_bp_record[key]["simtime"] != now:
-                del last_bp_record[key]
-
             last = bp_lifetimes[key]["last"]
             if last is not None:
-                bp_lifetimes[key]["usage"].append((last, now - last, "bp"))
+                bp_lifetimes[key]["usage"].append((last, now - last, "bp3"))
                 bp_lifetimes[key]["last"] = None
+                if key in last_bp_record:
+                    del last_bp_record[key]
             else:
                 if key in last_bp_record:
-                    if last_bp_record[key]["simtime"] != now:
+                    if last_bp_record[key]["simtime"] != now: # unlikely
                         del last_bp_record[key]
                     elif last_bp_record[key]["event_type"] == "BellPairGenerated":
                         bp_lifetimes[key]["usage"].append((last, now - last, "bp4"))
-                        bp_lifetimes[key]["last"] = None
+                        bp_lifetimes[key]["last"] = last_bp_record[key]["simtime"]
                         del last_bp_record[key]
                 else:
                     last_bp_record[key] = rec
