@@ -37,12 +37,15 @@ class SimSetting:
         return cmd
 
     def generate_config(self, result_root_dir: str, registry: registry.ParameterRegistry) -> str:
-
+        """generate omnetpp.ini config file"""
         # built in configs
         network_name = "{}_network".format(self.fields["network_type"])
         config_str = ""
         config_str += "network=topology.{}\n".format(network_name)
         config_str += '**.tomography_output_filename="{}"\n'.format(
+            os.path.join(result_root_dir, "results", self.sim_name)
+        )
+        config_str += '**.logger.log_filename="{}.jsonl"\n'.format(
             os.path.join(result_root_dir, "results", self.sim_name)
         )
 

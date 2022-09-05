@@ -41,7 +41,7 @@ def start_simulations(
         state.result_dir, ned_dir = plan.create_result_dir(state.results_root_dir)
         plan.write_config()
 
-        # copy quisp binnary and ned files to result dir
+        # copy quisp binary and ned files to result dir
         ned_files = glob.glob(os.path.join(state.quisp_workdir, "**/*.ned"), recursive=True)
         for ned_file in ned_files:
             os.makedirs(
@@ -56,7 +56,7 @@ def start_simulations(
 
         try:
             return_code = subprocess.run(
-                ["./quisp/quisp", "-h"], stderr=subprocess.PIPE, stdout=subprocess.PIPE
+                [quisp_bin_path, "-h"], stderr=subprocess.PIPE, stdout=subprocess.PIPE
             ).returncode
             if return_code != 0:
                 error_console.print(f"[red]QuISP binary has error at {quisp_bin_path}")
