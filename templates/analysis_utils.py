@@ -42,7 +42,7 @@ def pivot_by_cond(df, params, x="num_node", value="user", cond=dict()):
 
 
 def load_results_from_pickle() -> "Tuple[DataFrame, List[str], List[Any], List[str]]":
-    """load DataFrame, parameters, dataset and simulation names from './results.pickle' """
+    """load DataFrame, parameters, dataset and simulation names from './results.pickle'"""
     with open("results.pickle", "rb") as f:
         dataset = pickle.load(f)
         all_params = dataset["__params__"]
@@ -60,9 +60,7 @@ def load_logs_from_jsonl(sim_names: "List[str]") -> "Dict[str, DataFrame]":
     """this method loads the simulation results as a dict of DataFrames from jsonl files under 'results' dir"""
     logs = {}
     for sim_name in sim_names:
-        logs[sim_name] = pd.read_json(
-            f"./results/{sim_name}.jsonl", orient="records", lines=True
-        )
+        logs[sim_name] = pd.read_json(f"./results/{sim_name}.jsonl", orient="records", lines=True)
     return logs
 
 
@@ -93,8 +91,16 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
     busy_times: "DurationCollectorDict" = {}
     allocation_times: "DurationCollectorDict" = {}
     bp_annotations: "List[Tuple[str, float, str]]" = []
+
+    # BellPairGenerated event and BellPairErased event are queued in turn for each qubit.
+    # this variable contains tuples as pairs of the events to describe duration
     bp_lifetimes: "DurationCollectorDict" = {}
-    last_bp_record: "Dict[QubitKey, Any]" = {}
+
+    # used for handling irregular bell pair logs.
+    # if BellPairGenerated events follow one another,
+    # we need to keep those two events and resolve it when the third event comes.
+    # this variable stores the second event. the first event is stored in bp_lifetimes[key]["last"]
+    temp_bp_record: "Dict[QubitKey, Any]" = {}
 
     # collect event durations as tuple (start, end, data_kind)
     # this for loop iterates each event
@@ -127,14 +133,12 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
             else:
                 last = allocation_times[key]["last"]
                 if last:
-                    allocation_times[key]["usage"].append(
-                        (last, now - last, "qubit_allocation")
-                    )
+                    allocation_times[key]["usage"].append((last, now - last, "qubit_allocation"))
                     allocation_times[key]["last"] = None
 
         elif event_type == "BellPairGenerated":
-            if key in last_bp_record and last_bp_record[key]["simtime"] != now:
-                del last_bp_record[key]
+            if key in temp_bp_record and temp_bp_record[key]["simtime"] != now:
+                del temp_bp_record[key]
 
             bp_annotations.append(
                 ("{}".format(int(rec["partner_addr"])), rec["simtime"], str(rec["key"]))
@@ -147,41 +151,48 @@ def collect_duration_results(log: "DataFrame") -> "DurationResults":
             if last is None:
                 # normal case: just mark the simtime
                 bp_lifetimes[key]["last"] = rec["simtime"]
-                if key in last_bp_record:
-                    assert last_bp_record[key]["event_type"] == "BellPairErased", f"Invalid bp log state: {now} {key}"
-                    assert last_bp_record[key]["simtime"] == now, f"Invalid bp log state: {now}, {key}, {last_bp_record[key]}"
-                    bp_lifetimes[key]["usage"].append((now, 0.0, "bp5"))
-                    del last_bp_record[key]
+                if key in temp_bp_record:
+                    assert (
+                        temp_bp_record[key]["event_type"] == "BellPairErased"
+                    ), f"Invalid bp log state: {now} {key}"
+                    assert (
+                        temp_bp_record[key]["simtime"] == now
+                    ), f"Invalid bp log state: {now}, {key}, {temp_bp_record[key]}"
+                    bp_lifetimes[key]["usage"].append((now, 0.0, "bp"))
+                    del temp_bp_record[key]
                     bp_lifetimes[key]["last"] = None
             else:
-                if key in last_bp_record:
-                    assert last_bp_record[key]["event_type"] != "BellPairGenerated", f"Invalid bp log state: {now} {key}"
-                    last = last_bp_record[key]["simtime"]
-                    bp_lifetimes[key]["usage"].append((last, now - last, "bp2"))
+                if key in temp_bp_record:
+                    assert (
+                        temp_bp_record[key]["event_type"] != "BellPairGenerated"
+                    ), f"Invalid bp log state: {now} {key}"
+                    last = temp_bp_record[key]["simtime"]
+                    bp_lifetimes[key]["usage"].append((last, now - last, "bp"))
                     bp_lifetimes[key]["last"] = None
-                    del last_bp_record[key]
+                    del temp_bp_record[key]
 
                 else:
-                    last_bp_record[key] = rec
+                    temp_bp_record[key] = rec
 
         elif event_type == "BellPairErased":
             last = bp_lifetimes[key]["last"]
             if last is not None:
-                bp_lifetimes[key]["usage"].append((last, now - last, "bp3"))
+                bp_lifetimes[key]["usage"].append((last, now - last, "bp"))
                 bp_lifetimes[key]["last"] = None
-                if key in last_bp_record:
-                    del last_bp_record[key]
+                if key in temp_bp_record:
+                    del temp_bp_record[key]
             else:
-                if key in last_bp_record:
-                    if last_bp_record[key]["simtime"] != now: # unlikely
-                        del last_bp_record[key]
-                    elif last_bp_record[key]["event_type"] == "BellPairGenerated":
-                        bp_lifetimes[key]["usage"].append((last, now - last, "bp4"))
-                        bp_lifetimes[key]["last"] = last_bp_record[key]["simtime"]
-                        del last_bp_record[key]
-                else:
-                    last_bp_record[key] = rec
+                if key in temp_bp_record:
+                    temp_rec = temp_bp_record[key]
+                    assert (
+                        temp_rec["simtime"] == now and temp_rec["event_type"] == "BellPairGenerated"
+                    ), f"invalid bp log: it's overwrapped: {now} {key}"
+                    bp_lifetimes[key]["usage"].append((now, 0.0, "bp"))
+                    bp_lifetimes[key]["last"] = temp_bp_record[key]["simtime"]
+                    del temp_bp_record[key]
 
+                else:
+                    temp_bp_record[key] = rec
 
     return {
         "busy_times": busy_times,
@@ -203,7 +214,7 @@ def calc_durations(log):
             for us in d["usage"]:
                 usages.append((str(key), us[0], us[1], us[2]))
         if not usages:
-            return ([], [] , [], [])
+            return ([], [], [], [])
         usages = sorted(usages)
         usages.reverse()
         titles, begins, width, ts = zip(*usages)
@@ -229,9 +240,7 @@ PLOT_CONFIGS: "Dict[str, PlotConfig]" = {
 }
 
 
-def plot_timeline(
-    ax: "Axes", timelines, data_kind: "str", config: "Optional[PlotConfig]" = None
-):
+def plot_timeline(ax: "Axes", timelines, data_kind: "str", config: "Optional[PlotConfig]" = None):
     if data_kind not in timelines:
         raise RuntimeError(
             f"data_kind: {data_kind} is not defined in timelines. pass proper data_kind: {list(timelines.keys())}"

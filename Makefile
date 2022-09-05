@@ -1,6 +1,6 @@
 .PHONY: format build all clean check
 format:
-	poetry run black ./crispr/*.py ./crispr/**/*.py 
+	poetry run black ./crispr/*.py ./crispr/**/*.py  ./templates/*.py
 
 build:
 	poetry build
