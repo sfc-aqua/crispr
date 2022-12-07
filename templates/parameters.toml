@@ -62,7 +62,7 @@ plural = "purification_types"
 kind = "param"
 default_values = [1001]
 required = true
-param_key = "qrsa.hm.Purification_type"
+param_key = "qrsa.hm.purification_type"
 type = "int"
 
 [parameter.e2e_connection_enabled]
@@ -87,6 +87,14 @@ kind = "param"
 default_values = [3000]
 required = true
 param_key = "app.distant_measure_count"
+type = "int"
+
+[parameter.number_of_bellpair]
+plural = "number_of_bellpair_list"
+kind = "param"
+default_values = [10]
+required = true
+param_key = "app.number_of_bellpair"
 type = "int"
 
 [parameter.lone_initiator_addr]

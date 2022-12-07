@@ -12,7 +12,7 @@ network linear_network
         int numNodes = default(5);
         int numRepeaters = numNodes - 2;
         int lastRepeaterIndex = numRepeaters - 1;
-        int numHoMs = connectionType == "MIM" ? numRepeaters + 1: 0;
+        int numHOMs = connectionType == "MIM" ? numRepeaters + 1: 0;
         double classicalDistance @unit(km) = default(1.0km);
         double quantumDistance @unit(km) = default(1.0km);
 
@@ -25,10 +25,10 @@ network linear_network
         }
         EndNode[2]: QNode {
             address = index;
-            nodeType = "EndNode";
+            node_type = "EndNode";
             @display("i=device/pc");
         }
-    	HoM[numHoMs]: HoM {
+    	HOM[numHOMs]: HOM {
     	    address = index + parent.numNodes;
     	    @display("i=device/device");
     	}
@@ -36,21 +36,21 @@ network linear_network
     connections:
 
         if connectionType == "MIM" {
-            EndNode[0].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> HoM[0].port++;
-            HoM[0].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> Repeater[0].port++;
-            EndNode[0].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> HoM[0].quantum_port++;
-            HoM[0].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> Repeater[0].quantum_port++;
+            EndNode[0].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> HOM[0].port++;
+            HOM[0].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> Repeater[0].port++;
+            EndNode[0].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> HOM[0].quantum_port++;
+            HOM[0].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> Repeater[0].quantum_port++;
 
-            Repeater[i].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> HoM[i+1].port++ for i=0..numRepeaters - 2;
-            HoM[i+1].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> Repeater[i+1].port++ for i=0..numRepeaters - 2;
-            Repeater[i].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> HoM[i+1].quantum_port++ for i=0..numRepeaters - 2;
-            HoM[i+1].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> Repeater[i+1].quantum_port++ for i=0..numRepeaters - 2;
+            Repeater[i].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> HOM[i+1].port++ for i=0..numRepeaters - 2;
+            HOM[i+1].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> Repeater[i+1].port++ for i=0..numRepeaters - 2;
+            Repeater[i].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> HOM[i+1].quantum_port++ for i=0..numRepeaters - 2;
+            HOM[i+1].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> Repeater[i+1].quantum_port++ for i=0..numRepeaters - 2;
 
-            EndNode[1].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> HoM[sizeof(HoM)-1].port++;
-            HoM[sizeof(HoM)-1].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> Repeater[lastRepeaterIndex].port++;
+            EndNode[1].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> HOM[sizeof(HOM)-1].port++;
+            HOM[sizeof(HOM)-1].port++ <--> ClassicalChannel{distance = parent.classicalDistance / 2;} <--> Repeater[lastRepeaterIndex].port++;
 
-            EndNode[1].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> HoM[sizeof(HoM)-1].quantum_port++;
-            HoM[sizeof(HoM)-1].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> Repeater[lastRepeaterIndex].quantum_port++;
+            EndNode[1].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> HOM[sizeof(HOM)-1].quantum_port++;
+            HOM[sizeof(HOM)-1].quantum_port++ <--> QuantumChannel{ distance = parent.quantumDistance / 2;} <--> Repeater[lastRepeaterIndex].quantum_port++;
 
         }
 
