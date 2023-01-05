@@ -81,14 +81,6 @@ required = true
 param_key = "qrsa.hm.num_measure"
 type = "int"
 
-[parameter.num_e2e_measure]
-plural = "num_e2e_measures"
-kind = "param"
-default_values = [3000]
-required = true
-param_key = "app.distant_measure_count"
-type = "int"
-
 [parameter.number_of_bellpair]
 plural = "number_of_bellpair_list"
 kind = "param"
