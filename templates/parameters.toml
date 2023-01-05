@@ -24,8 +24,8 @@ default_values = [10, 20, 30, 40, 50]
 required = true
 param_key = "numNodes"
 
-[parameter.connection_type]
-plural = "connection_types"
+[parameter.link_type]
+plural = "link_types"
 kind = "network_param"
 required = true
 param_key = "connectionType"

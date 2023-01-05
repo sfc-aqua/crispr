@@ -233,9 +233,14 @@ class PlotConfig(TypedDict):
     color: str
     label: str
 
+
 PLOT_CONFIGS: "Dict[str, PlotConfig]" = {
     "qubit_busy": {"color": "#3475D0", "height": 0.8, "label": "Qubit busy"},
-    "qubit_allocation": {"color": "#34D5D0", "height": 0.55, "label": "Qubit allocated by RuleEngine"},
+    "qubit_allocation": {
+        "color": "#34D5D0",
+        "height": 0.55,
+        "label": "Qubit allocated by RuleEngine",
+    },
     "bp_lifetime": {"color": "#E64646", "height": 0.25, "label": "Bell pair lifetime"},
 }
 

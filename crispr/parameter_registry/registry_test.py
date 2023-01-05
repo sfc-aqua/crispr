@@ -24,7 +24,7 @@ def test_validate_config_vars():
         "num_nodes": [5],
         "title": "test",
         "network_type": "linear",
-        "connection_type": "MIM",
+        "link_type": "MIM",
         "config_ini_file": "config.ini",
     }
     is_valid = r.validate_config_vars(vars)
@@ -111,8 +111,8 @@ param_key = "networkType"
 type = "str"
 options = ["linear"]
 
-[parameter.connection_type]
-plural = "connection_types"
+[parameter.link_type]
+plural = "link_types"
 kind = "network_param"
 required = true
 param_key = "connectionType"
