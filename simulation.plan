@@ -12,5 +12,4 @@ traffic_pattern_indices = [1, 2]
 link_tomography_enabled_list = [True, False]
 e2e_connection_enabled_list = [True, False]
 num_measures = [1000, 2000, 3000, 4000]
-num_e2e_measures = [1000, 2000, 3000, 4000]
-number_of_bellpair = 10
+number_of_bellpair_list = [10, 20]

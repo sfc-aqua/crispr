@@ -19,7 +19,7 @@ def test_populate():
     config_vars["link_tomography_enabled"] = True
     config_vars["num_purification_iteration"] = 1
     config_vars["num_measure"] = 0
-    config_vars["num_e2e_measure"] = 0
+    config_vars["number_of_bellpair"] = 0
     config_vars["purification_type"] = 1001
     config_vars["lone_initiator_addr"] = 0
     config_vars["traffic_pattern_index"] = 0
