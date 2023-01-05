@@ -13,10 +13,18 @@ class SimSetting:
 
     context: "Optional[SimContext]"
     fields: Dict[str, Any]
+    ini_file_name: str
+    ini_file_config_name: Optional[str]
 
     def __init__(self, context: "Optional[SimContext]", fields: Dict[str, Any]):
         self.context = context
         self.fields = fields
+        self.ini_file_name = "omnetpp.ini"
+        self.ini_file_config_name = None
+
+    def load_ini_file_config(self, ini_file_name: str, config_name: str):
+        self.ini_file_name = ini_file_name
+        self.ini_file_config_name = config_name
 
     def to_command_list(self) -> List[str]:
         assert self.context is not None, "SimSetting.context is None"
@@ -28,7 +36,7 @@ class SimSetting:
             os.path.join(result_dir, "quisp_bin"),
             "-u",
             self.context.ui,
-            os.path.join(result_dir, "omnetpp.ini"),
+            os.path.join(result_dir, self.ini_file_name),
             "-c",
             self.sim_name,
             "-n",
@@ -84,6 +92,10 @@ class SimSetting:
         return " ".join(self.to_command_list())
 
     def __str__(self) -> str:
+        # if inifile is specified
+        if self.ini_file_config_name:
+            return self.ini_file_config_name
+
         s = ""
         for f in self.fields:
             if f == "config_ini_file":

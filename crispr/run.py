@@ -1,6 +1,7 @@
 import asyncio, shutil, glob, os, subprocess
 from crispr.simulation import SimContext
 from crispr.simulation.context import OmnetppEnv
+from crispr.simulation.plan import SimPlan
 from crispr.workers import Executor, Writer, job_display
 from crispr.config import parse_config
 
@@ -18,28 +19,34 @@ def start_simulations(
     exe_path="./quisp",
 ):
     console.print(f"QuISP Working dir: {state.quisp_workdir}")
-    console.print(f"Simulation plan: {state.simulation_plan_file_path}")
     registry = ParameterRegistry()
+    if state.ini_file_path:
+        console.print(f"INI file: {state.ini_file_path}")
+        plan = SimPlan({"title": "experiment"}, registry)
+        plan.load_ini_file(state.ini_file_path)
+    else:
+        console.print(f"Simulation plan: {state.simulation_plan_file_path}")
 
-    with open(state.parameters_toml_path, "rt") as f:
-        registry.load_from_toml(f.read())
-    plan = None
+        with open(state.parameters_toml_path, "rt") as f:
+            registry.load_from_toml(f.read())
+        plan = None
 
-    # populate simulation settings from simulation plan
-    with open(state.simulation_plan_file_path, "r") as f:
-        source = f.read()
-        plan = parse_config(source, registry)
-        if state.loaded:
-            plan.restore(state)
-        plan.populate()
+        # populate simulation settings from simulation plan
+        with open(state.simulation_plan_file_path, "r") as f:
+            source = f.read()
+            plan = parse_config(source, registry)
+            if state.loaded:
+                plan.restore(state)
+            plan.populate()
 
-    if not plan.settings:
-        error_console.print("[red]No simulation settings found in plan.")
-        exit(1)
+        if not plan.settings:
+            error_console.print("[red]No simulation settings found in plan.")
+            exit(1)
 
     if not state.loaded:
         state.result_dir, ned_dir = plan.create_result_dir(state.results_root_dir)
-        plan.write_config()
+        if not state.ini_file_path:
+            plan.write_config()
 
         # copy quisp binary and ned files to result dir
         ned_files = glob.glob(os.path.join(state.quisp_workdir, "**/*.ned"), recursive=True)
@@ -66,10 +73,13 @@ def start_simulations(
             error_console.print_exception()
             exit(1)
         shutil.copy(quisp_bin_path, os.path.join(state.result_dir, "quisp_bin"))
-        state.simulation_plan_file_path = shutil.copy(
-            state.simulation_plan_file_path, state.result_dir
-        )
-        state.parameters_toml_path = shutil.copy(state.parameters_toml_path, state.result_dir)
+        if state.ini_file_path:
+            state.ini_file_path = shutil.copy(state.ini_file_path, state.result_dir)
+        else:
+            state.simulation_plan_file_path = shutil.copy(
+                state.simulation_plan_file_path, state.result_dir
+            )
+            state.parameters_toml_path = shutil.copy(state.parameters_toml_path, state.result_dir)
         with open(os.path.join(state.result_dir, "commit.txt"), "w") as f:
             f.write(state.git_commit_rev)
 

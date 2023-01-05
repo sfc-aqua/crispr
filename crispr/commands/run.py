@@ -36,14 +36,16 @@ from crispr.constants import CRISPR_TEMPALTE_PARAMETERS_TOML
     default=CRISPR_TEMPALTE_PARAMETERS_TOML,
     help="path to the parameter schema toml file",
 )
-@click.argument("simulation_plan_file_path", type=click.Path(exists=True), required=False)
+@click.argument(
+    "ini_file_or_simulation_plan_file_path", type=click.Path(exists=True), required=False
+)
 def run(
     ui,
     ned_path,
     quisp_root,
     pool_size,
     result_dir,
-    simulation_plan_file_path,
+    ini_file_or_simulation_plan_file_path,
     force,
     parameter_toml_path,
 ):
@@ -62,9 +64,16 @@ def run(
 
     state = State()
 
+    if ini_file_or_simulation_plan_file_path and ini_file_or_simulation_plan_file_path.endswith(
+        ".ini"
+    ):
+        state.ini_file_path = ini_file_or_simulation_plan_file_path
+    else:
+        simulation_plan_file_path = ini_file_or_simulation_plan_file_path
+        state.simulation_plan_file_path = simulation_plan_file_path
+
     # initialize state
     state.current_working_dir = os.getcwd()
-    state.simulation_plan_file_path = simulation_plan_file_path
     state.quisp_root = quisp_root
     state.results_root_dir = (
         result_dir if result_dir else os.path.join(state.current_working_dir, "results")
@@ -83,9 +92,10 @@ def run(
         state.quisp_root = os.path.join(state.current_working_dir)
 
     plan_path = state.simulation_plan_file_path
-    if not os.path.exists(plan_path) or not os.path.isfile(plan_path):
-        error_console.print(f"Simulation plan file not found: {plan_path}")
-        exit(1)
+    if not state.ini_file_path:
+        if not os.path.exists(plan_path) or not os.path.isfile(plan_path):
+            error_console.print(f"Simulation plan file not found: {plan_path}")
+            exit(1)
 
     if not os.path.exists(state.quisp_root):
         error_console.print(f"quisp_root: {state.quisp_root} not found")

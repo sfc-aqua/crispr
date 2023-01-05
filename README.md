@@ -30,6 +30,9 @@ $ quispr run ./simulation.plan -r ../your-quisp-repository -o ../output-dir
 # run simulations with 16 workers
 $ quispr run ./simulation.plan -r ../your-quisp-repository -o ../output-dir -p 16
 
+# run all simulations in a ini file
+$ quispr run ../quisp/quisp/simulations/test.ini
+
 # and you can type Ctrl-C to stop the simulations
 
 # then you can resume the stopped simulation

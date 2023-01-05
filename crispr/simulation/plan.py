@@ -1,4 +1,5 @@
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
+import configparser
 import itertools, os, time, shutil
 from crispr.parameter_registry import ParameterRegistry
 from crispr.simulation import SimSetting
@@ -18,9 +19,9 @@ class SimPlan:
     settings: List[SimSetting]
     result_dir: str
     ned_path: str
-    registry: ParameterRegistry
+    registry: Optional[ParameterRegistry]
 
-    def __init__(self, config_vars: Dict[str, Any], registry: ParameterRegistry):
+    def __init__(self, config_vars: Dict[str, Any], registry: Optional[ParameterRegistry] = None):
         self.config_vars = config_vars
         self.settings = []
         self.result_dir = ""
@@ -122,3 +123,14 @@ class SimPlan:
         config_file_path = os.path.join(self.result_dir, "omnetpp.ini")
         for setting in self.settings:
             setting.fields["config_ini_file"] = config_file_path
+
+    def load_ini_file(self, ini_file_path: str):
+        config = configparser.ConfigParser()
+        config.read(ini_file_path)
+        for section in config.sections():
+            if section == "General":
+                continue
+            _, name = section.split()
+            setting = SimSetting(context=None, fields=dict())
+            setting.load_ini_file_config(os.path.basename(ini_file_path), name)
+            self.settings.append(setting)

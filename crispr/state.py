@@ -20,6 +20,7 @@ class State:
     result_dir: str
     current_working_dir: str
     simulation_plan_file_path: str
+    ini_file_path: str
     quisp_root: str
     quisp_workdir: str
     ned_path: str
@@ -34,6 +35,7 @@ class State:
         self.results_root_dir = ""
         self.result_dir = ""
         self.simulation_plan_file_path = ""
+        self.ini_file_path = ""
         self.quisp_root = ""
         self.quisp_workdir = ""
         self.ned_path = ""
@@ -68,6 +70,7 @@ class State:
         state.result_dir = data["result_dir"]
         state.results_root_dir = data["results_root_dir"]
         state.simulation_plan_file_path = data["simulation_plan_file_path"]
+        state.ini_file_path = data["ini_file_path"]
         state.quisp_root = data["quisp_root"]
         state.quisp_workdir = data["quisp_workdir"]
         state.ned_path = data["ned_path"]
